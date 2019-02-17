@@ -1,4 +1,4 @@
-mmt_juypter_kernel
+gf_kernel
 ===========
 
 `gf_kernel` is a [GF](https://www.grammaticalframework.org/) kernel for [Jupyter](https://jupyter.org/).
