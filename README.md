@@ -14,16 +14,16 @@ For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please 
 
 Installation
 ------------
+Install all necessary packages:
+
+    pip install -r requirements.txt
+
 Clone the kernel:
 
     git clone https://github.com/UniFormal/gf_kernel.git
     cd gf_kernel
 
-Install all necessary packages:
-
-    pip install -r requirements.txt
-
-Finally install the kernel module with:
+Install the kernel module with:
 
     python setup.py install
     python -m gf_kernel.install
