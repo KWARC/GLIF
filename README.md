@@ -1,4 +1,4 @@
-gf_kernel
+GF Kernel
 ===========
 
 `gf_kernel` is a [GF](https://www.grammaticalframework.org/) kernel for [Jupyter](https://jupyter.org/).
@@ -20,7 +20,7 @@ Install all necessary packages:
 
 Clone the kernel:
 
-    git clone https://github.com/UniFormal/gf_kernel.git
+    git clone https://github.com/kaiamann/gf_kernel
     cd gf_kernel
 
 Install the kernel module with:
