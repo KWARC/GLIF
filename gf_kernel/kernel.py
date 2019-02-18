@@ -6,8 +6,9 @@ import time
 
 # TODO clean up imports
 from jupyter_client import KernelClient
+from PIL import Image
 
-from .utils import to_display_data, parse_command
+from .utils import to_display_data
 from .GFRepl import GFRepl
 
 try:
@@ -15,7 +16,7 @@ try:
 except ImportError:
     from urllib import quote
 
-from IPython.display import display
+from IPython.display import display, Image, TextDisplayObject
 
 from traitlets import Instance, Type, Any, List, Bool
 from ipykernel.kernelbase import Kernel
@@ -113,20 +114,13 @@ class GFKernel(Kernel):
 
     def do_execute(self, code, silent=False, store_history=True, user_expressions=None, allow_stdin=True):
         """Called when the user inputs code"""
-        parse_dict = parse_command(code)
-        if parse_dict:
-            if parse_dict['type'] == 'command':
-                res = self.GFRepl.handle_input(code)
-            else:
-                file_path = os.path.join(GF_LIB,"%s.gf" % (parse_dict['name']))
-                with open(file_path, 'w') as f:
-                    f.write(code)
-                    f.close()
-                res = self.GFRepl.handle_input("import %s.gf" % (parse_dict['name']))
-        else:
-            res = "Input is neither a valid grammar nor a valid gf shell command!"
+        # img_data = Image.open('/home/kai/gf_content/out.png','r')
+        d = self.GFRepl.handle_input(code)
+        if d['type'] == 'image':
+            display(Image(filename=d['file']))
 
-        self.send_response(self.iopub_socket, 'display_data', to_display_data(res))
+
+        self.send_response(self.iopub_socket, 'display_data', to_display_data(d['message']))
 
             
         return {'status': 'ok',

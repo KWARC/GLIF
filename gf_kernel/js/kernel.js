@@ -19,8 +19,8 @@ define([
                 
                 var keywords = words(["abstract", "concrete", "flags", "startcat", "cat", "fun", "of", "lin", "lincat"]);
                 var builtins = words(["Phrase", "Item", "Kind", "Quality", "Item"]);
-                var isOperatorChar = /[=|+-\>\/]/;
-                var isSeparatorChar = /[;:]/
+                var isOperatorChar = /=|\+|>|\-|\|/;
+                var isSeparatorChar = /[,;:]/;
         
                 function tokenBase(stream, state) {
         
@@ -52,7 +52,7 @@ define([
                         }
 
                         if (/\d/.test(ch)) {
-                                stream.eatWhile(/[\d\.]/);
+                                stream.eatWhile(/\d/);
                                 if(isOperatorChar.test(stream.peek()) || stream.peek() == " " || stream.peek() == ";" || stream.peek() == null){
                                         return "number";
                                 }

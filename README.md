@@ -44,5 +44,8 @@ You're now ready to go and can start a Jupyter notebook with:
 Select the `gf_kernel` as kernel in your notebook.
 The kernel (hopefully) supports all of the normal GF shell commands.
 It can also be used to define new grammars, which are also saved and imported for usage after defining.
+Viewing graphs can also be done inline in the notebook by using `view` followed by a graph generating command. 
+Typing `clean` removes all `.png`, `.gfo` and `.dot` files.
 Take a look at the exmaple notebook to see how it works.
+
 This package requires Python 3.

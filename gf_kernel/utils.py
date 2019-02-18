@@ -3,7 +3,7 @@ def to_display_data(message,omdoc=None):
     if(omdoc):
         return {
             'data': {
-                'text/html': message,
+                'text/plain': message,
                 'application/omdoc' : omdoc
             },
             'metadata': {},
@@ -12,44 +12,21 @@ def to_display_data(message,omdoc=None):
     else:
         return {
             'data': {
-                'text/html': message,
+                'text/plain': message,
             },
             'metadata': {},
             'transient': {}
         }
 
-def parse_command(command):
-    """
-    Parses the input `command`
-
-    Outputs a dictionnary with the following fields:
-
-    `type` : 
-        is either `command` or `content`
-
-    `name` : the name of the grammar or the command
-
-    Outputs `None` if the command couldn't be parsed
-    """
-    if command.startswith('abstract') or command.startswith('concrete'):
-        try:
-            _, grammar_name, _ = command.split(" ",2)
-            return {
-                'type' : 'content',
-                'name' : grammar_name
-            }
-        except:
-            return None
-    else:
-        try:
-            command_name, _ = command.split(" ",1)
-            return {
-                'type' : 'command',
-                'name' : command_name
-            }
-        except:
-            command_name = command.replace(' ','').replace('\n','')
-            return {
-                'type' : 'command',
-                'name' : command_name
-            }
+def readFile(fn, cursor_pos=0):
+    """Reads the file with name `fn` starting at `cursor_pos`"""
+    fd = open(fn, 'r')
+    fd.seek(cursor_pos)
+    line = fd.readline()
+    out = ""
+    while line:
+        if line != '\n':
+            out += line
+        line = fd.readline()
+    fd.close()
+    return out

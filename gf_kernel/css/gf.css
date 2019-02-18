@@ -20,8 +20,9 @@
 .cm-s-gf span.cm-bracket { color: rgb(0, 0, 0); }
 .cm-s-gf span.cm-separator { color: rgb(209, 67, 10); }
 .cm-s-gf span.cm-builtin { color: rgb(18, 85, 156); }
+.cm-s-gf span.cm-number { color: rgb(179, 35, 35); }
 
-.cm-s-gf.CodeMirror { background:  #f7f7f7; color: rgb(0, 0, 0); }
+.cm-s-gf.CodeMirror { background:  #f7f7f7; color: rgb(0, 0, 0); } 
 
 
 .cm-s-gf .CodeMirror-cursor { border-left: 1px solid rgb(49, 49, 49); }

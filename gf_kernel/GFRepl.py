@@ -1,55 +1,185 @@
 import sys
 import os
-from subprocess import Popen, PIPE, STDOUT
+import signal
+import time
 
-
+from subprocess import PIPE, Popen
+from .utils import readFile
 
 class GFRepl:
-    importList = []
 
     def __init__(self, GF_BIN, GF_LIB):
-        self.GF_ARGS = [
+
+        self. GF_BIN = GF_BIN
+        self.GF_LIB = GF_LIB
+
+        GF_ARGS = [
             GF_BIN, 
             '--run', 
             '--gf-lib-path=%s' %(GF_LIB),
         ]
 
-    def handle_input(self, code):
-        """Sends the `code` to the GF shell""" 
-        # we save all imports and send them with every command
-        if code.startswith('import'):
-            _,grammar = code.split(' ',1)
-            # check if we can actually import it
-            p = Popen(self.GF_ARGS, stdin=PIPE, stdout=PIPE)
-            resp = p.communicate(code.encode())[0].decode()
-            if resp:
-                return resp.replace('\n','').replace('ExitFailure 1', '') # get rid of the the newlines and the ExitFailure 1 
-            self.importList.append(grammar)
-            return "Successfully imported %s" % (grammar)
+        self.out_file_name = 'shell.out'
+        self.to_clean_up = ['.png','.gfo','.dot']
+        self.out = open(self.out_file_name, 'w+')
+        self.shell = Popen(GF_ARGS, stdin=PIPE, stdout=self.out, stderr=self.out)
+        self.pid = os.getpid()
+        self.out_count = 0
+        
+
+        # register the signal handler for the notify process
+        signal.signal(signal.SIGUSR1, self.signal_handler)
+
+    def handle_input(self,code):
+        parse_dict = self.parse_command(code)
+        if parse_dict:
+            if parse_dict['type'] == 'command':
+                name = parse_dict['name']
+                if name == 'view':
+                    return self.handle_view(parse_dict['args'])
+                elif name == 'clean': 
+                    msg = self.clean_up()
+                else:
+                    msg = self.handle_shell_input(code)
+                    if parse_dict['name'] == 'import' and not msg:
+                        msg = "Import successful!"
+            else:
+                msg = self.handle_grammar(code,parse_dict['name'])
+              
         else:
-            p = Popen(self.GF_ARGS, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-            command = self.build_full_command(code)
-            return p.communicate(command.encode())[0].decode().replace('\n','') # get rid of the newlines
+            msg = "Input is neither a valid grammar nor a valid gf shell command!"
+
+        return {
+            'type' : 'text',
+            'message' : msg
+        }
     
-    # TODO look at how multiple imports are done
-    def build_full_command(self, code):
-        """Builds the full command including all imports"""
-        c = 'import'
-        for grammar in self.importList:
-            c += ' %s' % (grammar) 
-        return "%s\n%s\n" % (c, code)
+    def handle_grammar(self, grammar, name):
+        file_path = os.path.join(self.GF_LIB,"%s.gf" % (name))
+        with open(file_path, 'w') as f:
+            f.write(grammar)
+            f.close()
+        out = self.handle_shell_input("import %s.gf" % (name))
+        if not out:
+            out = "Defined %s" % (name)
+        return out
+
+
+    def handle_view(self, command):
+        out_dot = 'out%s.dot' % (self.out_count)
+        out_png = 'out%s.png' % (self.out_count)
+        cmd = '%s | wf -file=%s' % (command, out_dot)
+        self.handle_shell_input(cmd)
+        DOT_ARGS = [
+            'dot',
+            '-Tpng', out_dot,
+            '-o', out_png
+        ]
+        p = Popen(DOT_ARGS, shell=False, stdout=PIPE)
+        p.communicate()
+        self.out_count += 1
+
+        return{
+            'type' : 'image',
+            'file' : out_png,
+            'message' : ''
+        }
+
+
+    def handle_shell_input(self, code):
+        """Sends the `code` to the GF shell"""
+
+        if self.out.closed:
+            self.out = open(self.out_file_name, 'w')
+
+        cp_s = self.out.tell()
+        # send the command
+        code = code+'\n'
+        self.shell.stdin.write(code.encode())
+        self.shell.stdin.flush()
+        
+        # start the notify process
+        cmd ='sp -command=\"python %s/notify.py %s\"\n' % (os.path.dirname(os.path.abspath(__file__)), self.pid)
+        self.shell.stdin.write(cmd.encode())
+        self.shell.stdin.flush()
+
+        signal.pause() # wait for the shell to finish
+
+        # self.out.close()
+        time.sleep(0.2)
+        out = readFile(self.out_file_name,cp_s).replace('ExitFailure 1','') 
+        
+        return out
+
+    def clean_up(self):
+        removed = []
+        for root, _, files in os.walk("."):
+            for file in files:
+                file_path = os.path.join(root, file)
+                _, file_extension = os.path.splitext(file_path)
+                if file_extension in self.to_clean_up:
+                    os.remove(file_path)
+                    removed.append(file_path)
+        msg = ''
+        for f in removed:
+            msg += 'Removed %s\n' % (f)
+        return msg
 
     def start(self):
         """Starts the REPL"""
         i = sys.stdin.readline()
-        while i and i != 'quit\n':
-            print(self.handle_input(i))
+        while i and i != 'quit\n' and i != 'q\n':
+            print(self.handle_shell_input(i[:-1])) # send input with out the newline
             i = sys.stdin.readline()
+    
+
+    def signal_handler(self, signum, frame):
+        """Signal handler for the notify process"""
+        pass
 
 
-# if __name__ == '__main__':
-#     repl = GFRepl('.','.')
-#     repl.start()
+    def parse_command(self, code):
+        """
+        Parses the input `code`
+        Outputs a dictionnary with the following fields:
+        `type` : 
+            is either `command` or `content`
+        `name` : the name of the grammar or the command
+        `args` : if the input is a command with arguments
+        Outputs `None` if the command couldn't be parsed
+        """
+        lines = code.split('\n')
+        if len(lines) == 1: # command case
+            try:
+                command_name, args = code.split(" ",1)
+                return {
+                    'type' : 'command',
+                    'name' : command_name,
+                    'args' : args
+                }
+            except:
+                command_name = code.replace('\n','')
+                return {
+                    'type' : 'command',
+                    'name' : command_name
+                }
+        else: # grammar case
+            for line in lines:
+                if line.startswith('abstract') or line.startswith('concrete'):
+                    try:
+                        _, grammar_name, _ = line.split(" ",2)
+                        return {
+                            'type' : 'content',
+                            'name' : grammar_name
+                        }
+                    except:
+                        return None
+              
+
+if __name__ == '__main__':
+    repl = GFRepl('/usr/bin/gf','/home/kai/gf_content')
+    # print(readFile('out1'))
+    repl.start()
 
 
 

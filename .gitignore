@@ -1,3 +1,14 @@
+# GF files
+*.gf
+*.gfo
+
+# dot graph files
+*.dot
+*.out
+
+# Images
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__
 *.py[cod]
