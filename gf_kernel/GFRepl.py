@@ -2,6 +2,7 @@ import sys
 import os
 import signal
 import time
+import re 
 
 from subprocess import PIPE, Popen
 from .utils import readFile
@@ -148,6 +149,8 @@ class GFRepl:
         `args` : if the input is a command with arguments
         Outputs `None` if the command couldn't be parsed
         """
+
+        definers = ["abstract", "concrete", "resource", "incomplete", "instance", "interface"]
         lines = code.split('\n')
         if len(lines) == 1: # command case
             try:
@@ -167,18 +170,22 @@ class GFRepl:
             for line in lines:
                 if line.startswith('abstract') or line.startswith('concrete'):
                     try:
-                        _, grammar_name, _ = line.split(" ",2)
-                        return {
-                            'type' : 'content',
-                            'name' : grammar_name
-                        }
+                        words = line.split(" ")
+                        last = ""
+                        for word in words:
+                            if (not word in definers) and (last in definers):
+                                return {
+                                    'type' : 'content',
+                                    'name' : word
+                                }
+                            else:
+                                last = word
                     except:
                         return None
               
 
 if __name__ == '__main__':
-    repl = GFRepl('/usr/bin/gf','/home/kai/gf_content')
-    # print(readFile('out1'))
+    repl = GFRepl('/usr/bin/gf', os.path.expanduser('~'))
     repl.start()
 
 

@@ -4,17 +4,17 @@
 .cm-s-gf span.cm-def { line-height: 1em; font-weight: bold; color: rgb(226, 79, 21); }
 .cm-s-gf span.cm-keyword { line-height: 1em; font-weight: bold; color: rgb(0, 77, 165); }
 .cm-s-gf span.cm-variable { color: rgb(0, 0, 0); }
-.cm-s-gf span.cm-variable-2 { color: #9effff; }
-.cm-s-gf span.cm-variable-3 { color: #9effff; }
+.cm-s-gf span.cm-variable-2 { color: #0479c7; font-style: italic; }
 .cm-s-gf span.cm-type { color: white; }
-.cm-s-gf span.cm-operator { color: rgb(92, 0, 134); }
+.cm-s-gf span.cm-operator { color: rgb(92, 0, 134); font-weight: bold; }
 .cm-s-gf span.cm-string { color: rgb(44, 155, 30); }
 .cm-s-gf span.cm-string-2 { color: #6A8759; }
-.cm-s-gf span.cm-comment { color: #bd1212; }
+.cm-s-gf span.cm-comment { color: #bd1212; font-style: italic; }
 .cm-s-gf span.cm-link { color: #287BDE; }
 .cm-s-gf span.cm-atom { font-weight: bold; color: #CC7832; }
 .cm-s-gf span.cm-error { color: #BC3F3C; }
 .cm-s-gf span.cm-tag { color: #CC7832; }
+.cm-s-gf span.cm-meta { color: rgb(226, 79, 21); }
 .cm-s-gf span.cm-attribute { color: #6A8759; }
 .cm-s-gf span.cm-qualifier { color: #6A8759; }
 .cm-s-gf span.cm-bracket { color: rgb(0, 0, 0); }
