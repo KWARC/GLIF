@@ -118,7 +118,7 @@ class GFKernel(Kernel):
         ret_dict = self.GFRepl.handle_input(code)
         for msg in ret_dict['messages']:
             if msg == 'file':
-                file_name = ret_dict['files'].pop()
+                file_name = ret_dict['files'].pop(0)
                 display(Image(filename=file_name))
             else:
                 self.send_response(self.iopub_socket, 'display_data', to_display_data(msg))
