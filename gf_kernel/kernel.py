@@ -116,7 +116,7 @@ class GFKernel(Kernel):
         """Called when the user inputs code"""
         # img_data = Image.open('/home/kai/gf_content/out.png','r')
         d = self.GFRepl.handle_input(code)
-        if d['type'] == 'image':
+        if d['file']:
             display(Image(filename=d['file']))
 
 

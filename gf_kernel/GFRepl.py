@@ -32,32 +32,34 @@ class GFRepl:
         signal.signal(signal.SIGUSR1, self.signal_handler)
 
     def handle_input(self,code):
+        ret_dict = {
+            'message' : '',
+            'file' : None
+        }
         parse_dict = parse(code)
         if parse_dict['type']:
             if parse_dict['type'] == 'commands':
-                msg = ''
                 for command in parse_dict['commands']:
                     name = command['name']
                     args = command['args']
                     if name == 'view':
-                        return self.handle_view(command['args'])
+                        ret_dict['file'] = self.handle_view(command['args'])
                     elif name == 'clean': 
-                        msg = self.clean_up()
+                        ret_dict['message'] = '%s%s' % (ret_dict['message'],self.clean_up())
                     else:
-                        c = '%s %s' % (name, args)
-                        msg = '%s%s' % (msg,self.handle_shell_input(c))
-                    if name == 'import' and not msg:
-                        msg = '%s%s' % (msg,"Import Successful!")
+                        cmd = '%s %s' % (name, args)
+                        msg = self.handle_shell_input(cmd)
+                        if name == 'import' and not msg:
+                            ret_dict['message'] = '%s%s' % (ret_dict['message'],"Import Successful!")
+                        else:
+                            ret_dict['message'] = '%s%s' % (ret_dict['message'],msg)
             else:
-                msg = self.handle_grammar(code,parse_dict['grammar_name'])
+                ret_dict['message'] = self.handle_grammar(code,parse_dict['grammar_name'])
               
         else:
-            msg = "Input is neither a valid grammar nor a valid gf shell command!"
+            ret_dict['message'] = "Input is neither a valid grammar nor a valid gf shell command!"
 
-        return {
-            'type' : 'text',
-            'message' : msg
-        }
+        return ret_dict
     
     def handle_grammar(self, grammar, name):
         file_path = os.path.join(self.GF_LIB,"%s.gf" % (name))
@@ -84,11 +86,7 @@ class GFRepl:
         p.communicate()
         self.out_count += 1
 
-        return{
-            'type' : 'image',
-            'file' : out_png,
-            'message' : ''
-        }
+        return out_png
 
 
     def handle_shell_input(self, code):
