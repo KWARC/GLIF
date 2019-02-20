@@ -133,7 +133,8 @@ class GFKernel(Kernel):
   
     def do_shutdown(self,restart):
         """Called when the kernel is terminated"""
-        pass
+        self.GFRepl.do_shutdown()
+        
 
 
 if __name__ == '__main__':

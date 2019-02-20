@@ -27,9 +27,15 @@ class GFRepl:
         self.pid = os.getpid()
         self.out_count = 0
         
-
         # register the signal handler for the notify process
         signal.signal(signal.SIGUSR1, self.signal_handler)
+
+    def do_shutdown(self):
+        self.handle_shell_input('q')
+        self.clean_up()
+        self.shell.communicate()[0]
+        self.shell.stdin.close()
+        self.shell.kill()
 
     def handle_input(self,code):
         ret_dict = {
@@ -83,8 +89,9 @@ class GFRepl:
             '-Tpng', out_dot,
             '-o', out_png
         ]
-        p = Popen(DOT_ARGS, shell=False, stdout=PIPE)
-        p.communicate()
+        p = Popen(DOT_ARGS, shell=False)
+        p.communicate()[0]
+        p.kill()
         self.out_count += 1
 
         return out_png
