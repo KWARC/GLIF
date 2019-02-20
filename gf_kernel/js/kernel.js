@@ -18,7 +18,7 @@ define([
 
                         var commonKeywords = ["flags", "startcat", "cat", "fun",
                                 "of", "lin", "lincat", "with", "open", "in", "param", "linref",
-                                "table", "let", "case", "overload"];
+                                "table", "let", "case", "overload", "lindef", "def", "data", "oper"];
                         var commonBuiltins = ["Phrase", "Item", "Kind", "Quality", "Item"];
                         var commonDefiners = ["abstract", "concrete", "resource", "incomplete", "instance", "interface"];
                         var GFshellCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse", "ca",
