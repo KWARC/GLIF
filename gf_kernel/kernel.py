@@ -115,12 +115,13 @@ class GFKernel(Kernel):
     def do_execute(self, code, silent=False, store_history=True, user_expressions=None, allow_stdin=True):
         """Called when the user inputs code"""
         # img_data = Image.open('/home/kai/gf_content/out.png','r')
-        d = self.GFRepl.handle_input(code)
-        if d['file']:
-            display(Image(filename=d['file']))
-
-
-        self.send_response(self.iopub_socket, 'display_data', to_display_data(d['message']))
+        ret_dict = self.GFRepl.handle_input(code)
+        for msg in ret_dict['messages']:
+            if msg == 'file':
+                file_name = ret_dict['files'].pop()
+                display(Image(filename=file_name))
+            else:
+                self.send_response(self.iopub_socket, 'display_data', to_display_data(msg))
 
             
         return {'status': 'ok',

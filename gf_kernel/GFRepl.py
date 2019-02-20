@@ -33,8 +33,8 @@ class GFRepl:
 
     def handle_input(self,code):
         ret_dict = {
-            'message' : '',
-            'file' : None
+            'messages' : [],
+            'files' : []
         }
         parse_dict = parse(code)
         if parse_dict['type']:
@@ -43,21 +43,22 @@ class GFRepl:
                     name = command['name']
                     args = command['args']
                     if name == 'view':
-                        ret_dict['file'] = self.handle_view(command['args'])
+                        ret_dict['files'].append(self.handle_view(command['args']))
+                        ret_dict['messages'].append('file')
                     elif name == 'clean': 
-                        ret_dict['message'] = '%s%s' % (ret_dict['message'],self.clean_up())
+                        ret_dict['messages'].append(self.clean_up())
                     else:
                         cmd = '%s %s' % (name, args)
                         msg = self.handle_shell_input(cmd)
                         if name == 'import' and not msg:
-                            ret_dict['message'] = '%s%s' % (ret_dict['message'],"Import Successful!")
+                            ret_dict['messages'].append("Import Successful!")
                         else:
-                            ret_dict['message'] = '%s%s' % (ret_dict['message'],msg)
+                            ret_dict['messages'].append(msg)
             else:
-                ret_dict['message'] = self.handle_grammar(code,parse_dict['grammar_name'])
+                ret_dict['messages'].append(self.handle_grammar(code,parse_dict['grammar_name']))
               
         else:
-            ret_dict['message'] = "Input is neither a valid grammar nor a valid gf shell command!"
+            ret_dict['messages'].append("Input is neither a valid grammar nor a valid gf shell command!")
 
         return ret_dict
     
