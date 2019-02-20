@@ -5,7 +5,7 @@ import time
 import re 
 
 from subprocess import PIPE, Popen
-from .utils import readFile
+from .utils import readFile, parse
 
 class GFRepl:
 
@@ -32,20 +32,24 @@ class GFRepl:
         signal.signal(signal.SIGUSR1, self.signal_handler)
 
     def handle_input(self,code):
-        parse_dict = self.parse_command(code)
-        if parse_dict:
-            if parse_dict['type'] == 'command':
-                name = parse_dict['name']
-                if name == 'view':
-                    return self.handle_view(parse_dict['args'])
-                elif name == 'clean': 
-                    msg = self.clean_up()
-                else:
-                    msg = self.handle_shell_input(code)
-                    if parse_dict['name'] == 'import' and not msg:
-                        msg = "Import successful!"
+        parse_dict = parse(code)
+        if parse_dict['type']:
+            if parse_dict['type'] == 'commands':
+                msg = ''
+                for command in parse_dict['commands']:
+                    name = command['name']
+                    args = command['args']
+                    if name == 'view':
+                        return self.handle_view(command['args'])
+                    elif name == 'clean': 
+                        msg = self.clean_up()
+                    else:
+                        c = '%s %s' % (name, args)
+                        msg = '%s%s' % (msg,self.handle_shell_input(c))
+                    if name == 'import' and not msg:
+                        msg = '%s%s' % (msg,"Import Successful!")
             else:
-                msg = self.handle_grammar(code,parse_dict['name'])
+                msg = self.handle_grammar(code,parse_dict['grammar_name'])
               
         else:
             msg = "Input is neither a valid grammar nor a valid gf shell command!"
@@ -139,50 +143,7 @@ class GFRepl:
         pass
 
 
-    def parse_command(self, code):
-        """
-        Parses the input `code`
-        Outputs a dictionnary with the following fields:
-        `type` : 
-            is either `command` or `content`
-        `name` : the name of the grammar or the command
-        `args` : if the input is a command with arguments
-        Outputs `None` if the command couldn't be parsed
-        """
-
-        definers = ["abstract", "concrete", "resource", "incomplete", "instance", "interface"]
-        lines = code.split('\n')
-        if len(lines) == 1: # command case
-            try:
-                command_name, args = code.split(" ",1)
-                return {
-                    'type' : 'command',
-                    'name' : command_name,
-                    'args' : args
-                }
-            except:
-                command_name = code.replace('\n','')
-                return {
-                    'type' : 'command',
-                    'name' : command_name
-                }
-        else: # grammar case
-            for line in lines:
-                if line.startswith('abstract') or line.startswith('concrete'):
-                    try:
-                        words = line.split(" ")
-                        last = ""
-                        for word in words:
-                            if (not word in definers) and (last in definers):
-                                return {
-                                    'type' : 'content',
-                                    'name' : word
-                                }
-                            else:
-                                last = word
-                    except:
-                        return None
-              
+    
 
 if __name__ == '__main__':
     repl = GFRepl('/usr/bin/gf', os.path.expanduser('~'))

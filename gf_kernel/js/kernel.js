@@ -16,7 +16,6 @@ define([
                                 return new RegExp("^((" + words.join(")|(") + "))\\b");
                         }
 
-                        var wordOperators = wordRegexp(["and", "or", "not", "is"]);
                         var commonKeywords = ["flags", "startcat", "cat", "fun",
                                 "of", "lin", "lincat", "with", "open", "in", "param", "linref",
                                 "table", "let", "case", "overload"];
@@ -120,12 +119,15 @@ define([
                                         if (stream.match(/-\w*=\w*/)) return "variable-2"
 
                                         // Handle Comments
-                                        if (stream.match(/^--.*/)) return "comment";
+                                        if (stream.match(/^--.*/)) {
+                                                state.contentCell = true;
+                                                return "comment";
+                                        }
 
-                                        // Handle multiline Comments
                                         // Handle multiline comments
                                         if (stream.match(/{-/)) {
                                                 state.tokenize = tokenComment
+                                                state.contentCell = true;
                                                 return state.tokenize(stream, state);
                                         }
 
@@ -185,16 +187,26 @@ define([
                                         if (state.lastToken == "." && stream.match(identifiers))
                                                 return "property";
 
-                                        if (stream.match(keywords) || stream.match(wordOperators) || stream.match(definers)) {
+                                        if (stream.match(keywords) || stream.match(definers)) {
+                                                state.contentCell = true;
                                                 return "keyword";
                                         }
-
 
                                         if (stream.match(builtins))
                                                 return "builtin";
 
-                                        if (stream.match(commands))
-                                                return "tag";
+                                        if (stream.match(commands)){
+                                                if (state.contentCell){
+                                                        if (commonDefiners.includes(state.lastToken))
+                                                                return "def";
+                                                        if (state.lastToken == "of")
+                                                                return "meta";
+                                                        return "variable";
+                                                }
+                                                else{
+                                                        return "tag";
+                                                }
+                                        }
 
                                         if (stream.match(identifiers)) {
                                                 if (commonDefiners.includes(state.lastToken))
@@ -390,6 +402,7 @@ define([
                                                         scopes: [{ offset: basecolumn || 0, type: "py", align: null }],
                                                         indent: basecolumn || 0,
                                                         lastToken: null,
+                                                        contentCell: false,
                                                         lambda: false,
                                                         dedent: 0
                                                 };

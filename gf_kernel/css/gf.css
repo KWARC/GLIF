@@ -12,7 +12,7 @@
 .cm-s-gf span.cm-comment { color: #bd1212; font-style: italic; }
 .cm-s-gf span.cm-link { color: #287BDE; }
 .cm-s-gf span.cm-atom { font-weight: bold; color: #CC7832; }
-.cm-s-gf span.cm-error { color: #BC3F3C; }
+.cm-s-gf span.cm-error { color: rgb(255, 4, 0); }
 .cm-s-gf span.cm-tag { color: #CC7832; }
 .cm-s-gf span.cm-meta { color: rgb(226, 79, 21); }
 .cm-s-gf span.cm-attribute { color: #6A8759; }
