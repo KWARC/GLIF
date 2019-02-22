@@ -80,3 +80,27 @@ def parse(code):
                 parseDict['commands'].append(command)
 
     return parseDict
+
+
+def to_message_format(message=None, file=None, trees=None, tree_type=None):
+    return {
+        'message' : message,
+        'file' : file,
+        'trees' : trees,
+        'tree_type' : tree_type
+    }
+
+def parse_command(command):
+    ret_dict = {
+        'cmd' : None,
+        'tree_type' : None
+    }
+    try:
+        cmd, tree_type = command.split('|')
+        tree_type.replace(' ','')
+        ret_dict['cmd'] = cmd
+        ret_dict['tree_type'] = tree_type
+        return ret_dict
+    except:
+        ret_dict['cmd'] = command
+        return ret_dict

@@ -5,7 +5,7 @@ import time
 import re 
 
 from subprocess import PIPE, Popen
-from .utils import readFile, parse
+from .utils import readFile, parse, parse_command, to_message_format
 
 class GFRepl:
 
@@ -38,10 +38,11 @@ class GFRepl:
         self.shell.kill()
 
     def handle_input(self,code):
-        ret_dict = {
-            'messages' : [],
-            'files' : []
-        }
+        messages = []
+        # ret_dict = {
+        #     'messages' : [],
+        #     'files' : []
+        # }
         parse_dict = parse(code)
         if parse_dict['type']:
             if parse_dict['type'] == 'commands':
@@ -49,24 +50,23 @@ class GFRepl:
                     name = command['name']
                     args = command['args']
                     if name == 'view':
-                        ret_dict['files'].append(self.handle_view(command['args']))
-                        ret_dict['messages'].append('file')
+                        messages.append(self.handle_multiple_view(command['args']))
                     elif name == 'clean': 
-                        ret_dict['messages'].append(self.clean_up())
+                        messages.append(to_message_format(message=self.clean_up()))
                     else:
                         cmd = '%s %s' % (name, args)
                         msg = self.handle_shell_input(cmd)
                         if name == 'import' and not msg:
-                            ret_dict['messages'].append("Import Successful!")
+                            messages.append(to_message_format(message='Import successful!'))
                         else:
-                            ret_dict['messages'].append(msg)
+                            messages.append(to_message_format(message=msg))
             else:
-                ret_dict['messages'].append(self.handle_grammar(code,parse_dict['grammar_name']))
+                messages.append(to_message_format(message=self.handle_grammar(code,parse_dict['grammar_name'])))
               
         else:
-            ret_dict['messages'].append("Input is neither a valid grammar nor a valid gf shell command!")
+            messages.append(to_message_format(message="Input is neither a valid grammar nor a valid gf shell command!"))
 
-        return ret_dict
+        return messages
     
     def handle_grammar(self, grammar, name):
         file_path = os.path.join(self.GF_LIB,"%s.gf" % (name))
@@ -77,9 +77,27 @@ class GFRepl:
         if not out:
             out = "Defined %s" % (name)
         return out
+    
 
 
-    def handle_view(self, command):
+
+    def handle_multiple_view(self,command):
+        cmd = parse_command(command)
+        if cmd['tree_type']:
+            raw_command = cmd['cmd']
+            out = self.handle_shell_input(raw_command)
+            lines = out.split('\n')
+            trees = []
+            for line in lines:
+                if line != '' and line != ' ':
+                    trees.append(line)
+            if len(trees) > 1:
+                return to_message_format(trees=trees,tree_type=cmd['tree_type'])
+
+        return to_message_format(file=self.handle_single_view(command))
+
+
+    def handle_single_view(self, command):
         out_dot = 'out%s.dot' % (self.out_count)
         out_png = 'out%s.png' % (self.out_count)
         cmd = '%s | wf -file=%s' % (command, out_dot)
@@ -95,6 +113,7 @@ class GFRepl:
         self.out_count += 1
 
         return out_png
+
 
 
     def handle_shell_input(self, code):
@@ -134,6 +153,7 @@ class GFRepl:
         msg = ''
         for f in removed:
             msg += 'Removed %s\n' % (f)
+        self.out_count = 0
         return msg
 
     def start(self):

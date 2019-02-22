@@ -17,6 +17,7 @@ except ImportError:
     from urllib import quote
 
 from IPython.display import display, Image, TextDisplayObject
+from ipywidgets import widgets
 
 from traitlets import Instance, Type, Any, List, Bool
 from ipykernel.kernelbase import Kernel
@@ -111,17 +112,50 @@ class GFKernel(Kernel):
             'engine': self.ident,
         })
         return md 
+    
+    
 
     def do_execute(self, code, silent=False, store_history=True, user_expressions=None, allow_stdin=True):
         """Called when the user inputs code"""
         # img_data = Image.open('/home/kai/gf_content/out.png','r')
-        ret_dict = self.GFRepl.handle_input(code)
-        for msg in ret_dict['messages']:
-            if msg == 'file':
-                file_name = ret_dict['files'].pop(0)
+        messages = self.GFRepl.handle_input(code)
+        for msg in messages:
+            if msg['file']:
+                file_name = msg['file']
                 display(Image(filename=file_name))
-            else:
-                self.send_response(self.iopub_socket, 'display_data', to_display_data(msg))
+            elif msg['message']:
+                self.send_response(self.iopub_socket, 'display_data', to_display_data(msg['message']))
+            elif msg['trees']:
+                
+                dd = widgets.Dropdown(
+                    options=msg['trees'],
+                    value=msg['trees'][0],
+                    description='Tree of:',
+                    disabled=False,
+                )
+
+                file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],msg['trees'][0]))
+                file = open(file_name, "rb")
+                img = file.read()
+                file.close()
+                image = widgets.Image(
+                    value=img,
+                    format='png'
+                )
+
+                def on_value_change(change):
+                    file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],change['new']))
+                    file = open(file_name, "rb")
+                    img = file.read()
+                    file.close()
+                    image.value = img
+
+                dd.observe(on_value_change, names='value')
+                
+                
+                display(dd,image)
+
+              
 
             
         return {'status': 'ok',

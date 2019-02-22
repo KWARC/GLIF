@@ -119,15 +119,11 @@ define([
                                         if (stream.match(/-\w*=\w*/)) return "variable-2"
 
                                         // Handle Comments
-                                        if (stream.match(/^--.*/)) {
-                                                state.contentCell = true;
-                                                return "comment";
-                                        }
+                                        if (stream.match(/^--.*/)) return "comment";
 
                                         // Handle multiline comments
                                         if (stream.match(/{-/)) {
                                                 state.tokenize = tokenComment
-                                                state.contentCell = true;
                                                 return state.tokenize(stream, state);
                                         }
 
