@@ -31,18 +31,14 @@ class GFRepl:
         signal.signal(signal.SIGUSR1, self.signal_handler)
 
     def do_shutdown(self):
-        self.handle_shell_input('q')
         self.clean_up()
+        self.shell.stdin.write(b'q')
         self.shell.communicate()[0]
         self.shell.stdin.close()
         self.shell.kill()
 
     def handle_input(self,code):
         messages = []
-        # ret_dict = {
-        #     'messages' : [],
-        #     'files' : []
-        # }
         parse_dict = parse(code)
         if parse_dict['type']:
             if parse_dict['type'] == 'commands':
@@ -79,8 +75,6 @@ class GFRepl:
         return out
     
 
-
-
     def handle_multiple_view(self,command):
         cmd = parse_command(command)
         if cmd['tree_type']:
@@ -98,10 +92,16 @@ class GFRepl:
 
 
     def handle_single_view(self, command):
+        out = self.handle_shell_input(command)
+        if not out:
+            return "no file"
+
         out_dot = 'out%s.dot' % (self.out_count)
         out_png = 'out%s.png' % (self.out_count)
-        cmd = '%s | wf -file=%s' % (command, out_dot)
-        self.handle_shell_input(cmd)
+        
+        with open(out_dot,'w') as f:
+            f.write(out)
+
         DOT_ARGS = [
             'dot',
             '-Tpng', out_dot,

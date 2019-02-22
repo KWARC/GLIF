@@ -122,7 +122,12 @@ class GFKernel(Kernel):
         for msg in messages:
             if msg['file']:
                 file_name = msg['file']
-                display(Image(filename=file_name))
+                try:
+                    with open(file_name, "rb") as f:
+                        img = f.read()
+                    display(widgets.Image(value=img,format='png'))
+                except:
+                    self.send_response(self.iopub_socket, 'display_data', to_display_data("There is no tree to show!"))
             elif msg['message']:
                 self.send_response(self.iopub_socket, 'display_data', to_display_data(msg['message']))
             elif msg['trees']:
@@ -135,19 +140,14 @@ class GFKernel(Kernel):
                 )
 
                 file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],msg['trees'][0]))
-                file = open(file_name, "rb")
-                img = file.read()
-                file.close()
-                image = widgets.Image(
-                    value=img,
-                    format='png'
-                )
+                with open(file_name, "rb") as f:
+                    img = f.read()
+                image = widgets.Image(value=img,format='png')
 
                 def on_value_change(change):
                     file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],change['new']))
-                    file = open(file_name, "rb")
-                    img = file.read()
-                    file.close()
+                    with open(file_name, "rb") as f:
+                        img = f.read()
                     image.value = img
 
                 dd.observe(on_value_change, names='value')

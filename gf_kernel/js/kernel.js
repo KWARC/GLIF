@@ -32,7 +32,7 @@ define([
                                 "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt",
                                 "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp",
                                 "visualize_tree", "vt", "write_file", "wf"];
-                        var kernelCommands = ["view", "clean"];
+                        var commonKernelCommands = ["view", "clean"];
                         CodeMirror.registerHelper("hintWords", "gf", commonKeywords.concat(commonBuiltins));
 
                         function top(state) {
@@ -74,7 +74,8 @@ define([
                                 }
                                 var keywords = wordRegexp(myKeywords);
                                 var builtins = wordRegexp(myBuiltins);
-                                var commands = wordRegexp(GFshellCommands.concat(kernelCommands))
+                                var GFCommands = wordRegexp(GFshellCommands)
+                                var kernelCommands = wordRegexp(commonKernelCommands)
                                 var definers = wordRegexp(commonDefiners);
 
                                 // tokenizers
@@ -191,7 +192,7 @@ define([
                                         if (stream.match(builtins))
                                                 return "builtin";
 
-                                        if (stream.match(commands)){
+                                        if (stream.match(GFCommands)){
                                                 if (state.contentCell){
                                                         if (commonDefiners.includes(state.lastToken))
                                                                 return "def";
@@ -201,6 +202,19 @@ define([
                                                 }
                                                 else{
                                                         return "tag";
+                                                }
+                                        }
+
+                                        if (stream.match(kernelCommands)){
+                                                if (state.contentCell){
+                                                        if (commonDefiners.includes(state.lastToken))
+                                                                return "def";
+                                                        if (state.lastToken == "of")
+                                                                return "meta";
+                                                        return "variable";
+                                                }
+                                                else{
+                                                        return "atom";
                                                 }
                                         }
 
