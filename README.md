@@ -46,6 +46,6 @@ It can also be used to define new grammars, which are also saved and imported fo
 If you would like to have line numbers for editing your code you can use the Juypter shortcut <kbd>Esc</kbd>+<kbd>L</kbd> to enable them. 
 Viewing graphs can also be done inline in the notebook by using `view` followed by a graph generating command. 
 Typing `clean` removes all `.png`, `.gfo` and `.dot` files.
-Take a look at the exmaple notebook to see how it works.
+Take a look at the example notebook to see how it works.
 
 This package requires Python 3.
