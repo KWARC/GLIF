@@ -19,12 +19,12 @@ define([
                         var commonKeywords = ["flags", "startcat", "cat", "fun",
                                 "of", "lin", "lincat", "with", "open", "in", "param", "linref",
                                 "table", "let", "case", "overload", "lindef", "def", "data", "oper"];
-                        var commonBuiltins = ["Phrase", "Item", "Kind", "Quality", "Item", "Str"];
+                        var commonBuiltins = ["Phrase", "Item", "Kind", "Quality", "Str"];
                         var commonDefiners = ["abstract", "concrete", "resource", "incomplete", "instance", "interface"];
                         var GFshellCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse", "ca",
                                 "compute_conctete", "cc", "define_command", "dc", "depencency_graph", "dg",
                                 "define_tree", "dt", "empty", "e", "example_based", "eb", "execute_history", "eh",
-                                "generate_random", "gr", "generate_trees", "gt", "help", "h", "import", "i",
+                                "generate_random", "gr", "generate_trees", "gt", "h", "import", "i",
                                 "linearize", "l", "linearize_chunks", "lc", "morpho_analyse", "ma", "morpho_quiz",
                                 "mq", "parse", "p", "print_grammar", "pg", "print_history", "ph", "put_string",
                                 "ps", "put_tree", "pt", "quit", "q", "reload", "r", "read_file", "rf", "rank_trees",
@@ -32,7 +32,7 @@ define([
                                 "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt",
                                 "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp",
                                 "visualize_tree", "vt", "write_file", "wf"];
-                        var commonKernelCommands = ["view", "clean"];
+                        var commonKernelCommands = ["view", "clean", "help"];
                         CodeMirror.registerHelper("hintWords", "gf", commonKeywords.concat(commonBuiltins));
 
                         function top(state) {

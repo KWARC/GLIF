@@ -1,23 +1,13 @@
-def to_display_data(message,omdoc=None):
+def to_display_data(message,mimetype='text/plain'):
     """wraps the message into the display_data format"""
-    if(omdoc):
-        return {
-            'data': {
-                'text/plain': message,
-                'application/omdoc' : omdoc
-            },
-            'metadata': {},
-            'transient': {},
-        }
-    else:
-        return {
-            'data': {
-                'text/plain': message,
-            },
-            'metadata': {},
-            'transient': {}
-        }
-
+    return {
+        'data': {
+            mimetype : message
+        },
+        'metadata': {},
+        'transient': {},
+    }
+   
 def readFile(fn, cursor_pos=0):
     """Reads the file with name `fn` starting at `cursor_pos`"""
     fd = open(fn, 'r')

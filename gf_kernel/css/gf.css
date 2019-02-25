@@ -1,22 +1,22 @@
 /**
   Name: GF theme
 */
-.cm-s-gf span.cm-def { line-height: 1em; font-weight: bold; color: rgb(226, 79, 21); }
+/* grammar names*/
+.cm-s-gf span.cm-def { line-height: 1em; font-weight: bold; color: rgb(226, 79, 21); } 
+ /* abstract grammars after 'of' keyword */
+.cm-s-gf span.cm-meta { color: rgb(226, 79, 21); }
 .cm-s-gf span.cm-keyword { line-height: 1em; font-weight: bold; color: rgb(0, 77, 165); }
 .cm-s-gf span.cm-variable { color: rgb(0, 0, 0); }
-.cm-s-gf span.cm-variable-2 { color: #0479c7; font-style: italic; }
-.cm-s-gf span.cm-type { color: white; }
+/* shell command arguments*/
+.cm-s-gf span.cm-variable-2 { color: #0479c7; font-style: italic; } 
 .cm-s-gf span.cm-operator { color: rgb(92, 0, 134); font-weight: bold; }
 .cm-s-gf span.cm-string { color: rgb(44, 155, 30); }
-.cm-s-gf span.cm-string-2 { color: #6A8759; }
 .cm-s-gf span.cm-comment { color: #bd1212; font-style: italic; }
-.cm-s-gf span.cm-link { color: #287BDE; }
-.cm-s-gf span.cm-atom { font-weight: bold; color: #CC7832; }
+/* gf_kernel commands */
+.cm-s-gf span.cm-atom { font-weight: bold; color: #CC7832; } 
+/* gf_shell commands */
+.cm-s-gf span.cm-tag { color: #CC7832; } 
 .cm-s-gf span.cm-error { color: rgb(255, 4, 0); }
-.cm-s-gf span.cm-tag { color: #CC7832; }
-.cm-s-gf span.cm-meta { color: rgb(226, 79, 21); }
-.cm-s-gf span.cm-attribute { color: #6A8759; }
-.cm-s-gf span.cm-qualifier { color: #6A8759; }
 .cm-s-gf span.cm-bracket { color: rgb(0, 0, 0); }
 .cm-s-gf span.cm-separator { color: rgb(209, 67, 10); }
 .cm-s-gf span.cm-builtin { color: rgb(18, 85, 156); }
@@ -24,16 +24,13 @@
 
 .cm-s-gf.CodeMirror { background:  #f7f7f7; color: rgb(0, 0, 0); } 
 
-
 .cm-s-gf .CodeMirror-cursor { border-left: 1px solid rgb(49, 49, 49); }
-.cm-s-gf .CodeMirror-activeline-background { background-color: #08599c49; }
 .cm-s-gf div.CodeMirror-selected { background: #08599c49; }
 .cm-s-gf .CodeMirror-gutters { background: #9e9e9e; border-right: 1px solid #aaa; }
 .cm-s-gf .CodeMirror-linenumber { color: #3f3f3f; }
 
-
 .cm-s-gf .CodeMirror-matchingbracket { background-color: #f7f7f7; color: rgb(34, 252, 6) ; font-weight: bold;}
-/** for borders around brackets width: 1px; border: solid black 0.1px; */
+
 .CodeMirror-hints.gf {
   font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
   color: #9c9e9e;
@@ -42,5 +39,5 @@
 
 .CodeMirror-hints.gf .CodeMirror-hint-active {
   background-color: #494d4e !important;
-  color: #9c9e9e !important; /**#9c9e9e !important; color: #A9B7C6*/ 
+  color: #9c9e9e !important;
 }
