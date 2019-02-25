@@ -9,18 +9,16 @@ from .utils import readFile, parse, parse_command, to_message_format
 
 class GFRepl:
 
-    def __init__(self, GF_BIN, GF_LIB):
-
-        self. GF_BIN = GF_BIN
-        self.GF_LIB = GF_LIB
+    def __init__(self, GF_BIN):
+        self.GF_BIN = GF_BIN
 
         GF_ARGS = [
             GF_BIN, 
-            '--run', 
-            '--gf-lib-path=%s' %(GF_LIB),
+            '--run'
         ]
 
         self.out_file_name = 'shell.out'
+        # files with these extensions will be cleaned up
         self.to_clean_up = ['.png','.gfo','.dot']
         self.out = open(self.out_file_name, 'w+')
         self.shell = Popen(GF_ARGS, stdin=PIPE, stdout=self.out, stderr=self.out)
@@ -31,6 +29,7 @@ class GFRepl:
         signal.signal(signal.SIGUSR1, self.signal_handler)
 
     def do_shutdown(self):
+        "Terminates the GF shell and cleans up cwd"
         self.clean_up()
         self.shell.stdin.write(b'q')
         self.shell.communicate()[0]
@@ -38,6 +37,7 @@ class GFRepl:
         self.shell.kill()
 
     def handle_input(self,code):
+        """Handles all kinds of user inputs"""
         messages = []
         parse_dict = parse(code)
         if parse_dict['type']:
@@ -65,7 +65,8 @@ class GFRepl:
         return messages
     
     def handle_grammar(self, grammar, name):
-        file_path = os.path.join(self.GF_LIB,"%s.gf" % (name))
+        """Handles a grammar imput"""
+        file_path = "%s.gf" % (name)
         with open(file_path, 'w') as f:
             f.write(grammar)
             f.close()
@@ -76,6 +77,7 @@ class GFRepl:
     
 
     def handle_multiple_view(self,command):
+        """Handles view commands with possibly multiple graph outputs"""
         cmd = parse_command(command)
         if cmd['tree_type']:
             raw_command = cmd['cmd']
@@ -92,6 +94,12 @@ class GFRepl:
 
 
     def handle_single_view(self, command):
+        """
+            Handles a single view command
+
+            Sends the `command` to the GF shell and converts the output to a .png file
+            returns the name of the .png file
+        """
         out = self.handle_shell_input(command)
         if not out:
             return "no file"
@@ -123,6 +131,7 @@ class GFRepl:
             self.out = open(self.out_file_name, 'w')
 
         cp_s = self.out.tell()
+
         # send the command
         code = code+'\n'
         self.shell.stdin.write(code.encode())
@@ -133,15 +142,19 @@ class GFRepl:
         self.shell.stdin.write(cmd.encode())
         self.shell.stdin.flush()
 
-        signal.pause() # wait for the shell to finish
+        # wait for the notify process
+        signal.pause()
 
-        # self.out.close()
-        time.sleep(0.2)
+        # some shell commands (mostly the ones that are dealing with files) are asynchronous from the shells execution, 
+        # like e.g. searching a file to include. This means the notify process can report back even though the shell 
+        # hasn't actually written its output to the output file yet. Hence we need to wait a little here to be sure the output is there.
+        time.sleep(0.2) 
         out = readFile(self.out_file_name,cp_s).replace('ExitFailure 1','') 
         
         return out
 
     def clean_up(self):
+        """Removes all files whose extensions are contained in `self.to_clean_up`"""
         removed = []
         for root, _, files in os.walk("."):
             for file in files:
@@ -160,7 +173,7 @@ class GFRepl:
         """Starts the REPL"""
         i = sys.stdin.readline()
         while i and i != 'quit\n' and i != 'q\n':
-            print(self.handle_shell_input(i[:-1])) # send input with out the newline
+            print(self.handle_shell_input(i[:-1])) # send input without the newline
             i = sys.stdin.readline()
     
 
@@ -170,9 +183,8 @@ class GFRepl:
 
 
     
-
 if __name__ == '__main__':
-    repl = GFRepl('/usr/bin/gf', os.path.expanduser('~'))
+    repl = GFRepl('/usr/bin/gf')
     repl.start()
 
 

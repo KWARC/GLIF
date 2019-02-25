@@ -3,12 +3,11 @@ import os
 import ipywidgets
 import subprocess
 import time
+import re
 
-# TODO clean up imports
 from jupyter_client import KernelClient
-from PIL import Image
 
-from .utils import to_display_data
+from .utils import to_display_data, get_current_word, get_matches
 from .GFRepl import GFRepl
 
 try:
@@ -25,7 +24,6 @@ from ipykernel.comm import CommManager
 from ipykernel.zmqshell import ZMQInteractiveShell
 
 GF_BIN = os.environ.get('GF_BIN', '/usr/bin/gf')
-GF_LIB = os.environ.get('GF_LIB', '.')
 
 # ----------------------------------  KERNEL  ----------------------------------
 
@@ -41,7 +39,6 @@ class GFKernel(Kernel):
         'file_extension': '.gf',
     }
     banner = "GF"
-        
 
     shell = Instance('IPython.core.interactiveshell.InteractiveShellABC', allow_none=True)
     shell_class = Type(ZMQInteractiveShell)
@@ -86,7 +83,8 @@ class GFKernel(Kernel):
             self.shell_handlers[msg_type] = getattr(
                 self.comm_manager, msg_type)
 
-        self.GFRepl = GFRepl(GF_BIN, GF_LIB)
+        # initialize the GFRepl
+        self.GFRepl = GFRepl(GF_BIN)
 
   
     def start(self):
@@ -128,17 +126,17 @@ class GFKernel(Kernel):
                     display(widgets.Image(value=img,format='png'))
                 except:
                     self.send_response(self.iopub_socket, 'display_data', to_display_data("There is no tree to show!"))
+
             elif msg['message']:
                 self.send_response(self.iopub_socket, 'display_data', to_display_data(msg['message']))
+
             elif msg['trees']:
-                
                 dd = widgets.Dropdown(
                     options=msg['trees'],
                     value=msg['trees'][0],
                     description='Tree of:',
                     disabled=False,
                 )
-
                 file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],msg['trees'][0]))
                 with open(file_name, "rb") as f:
                     img = f.read()
@@ -150,14 +148,9 @@ class GFKernel(Kernel):
                         img = f.read()
                     image.value = img
 
-                dd.observe(on_value_change, names='value')
-                
-                
+                dd.observe(on_value_change, names='value')  
                 display(dd,image)
 
-              
-
-            
         return {'status': 'ok',
                 # The base class increments the execution count
                 'payload': [],
@@ -168,9 +161,24 @@ class GFKernel(Kernel):
     def do_shutdown(self,restart):
         """Called when the kernel is terminated"""
         self.GFRepl.do_shutdown()
+
+    def do_complete(self,code,cursorPos):
+        """Autocompletion when the user presses tab"""
+        # load the shortcuts from the unicode-latex-map
+        last_word = get_current_word(code,cursorPos)
+        matches = get_matches(last_word)
+        if not last_word or not matches:
+            matches = None
+            
+        return {
+            'matches' : matches,
+            'cursor_start' : cursorPos-len(last_word),
+            'cursor_end' : cursorPos,
+            'metadata' : {},
+            'status' : 'ok'
+        }
+
         
-
-
 if __name__ == '__main__':
     from ipykernel.kernelapp import IPKernelApp
     IPKernelApp.launch_instance(kernel_class=GFKernel)

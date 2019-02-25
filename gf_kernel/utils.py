@@ -32,10 +32,9 @@ def readFile(fn, cursor_pos=0):
     return out
 
 
-
 commonKeywords = ["flags", "startcat", "cat", "fun", "of", "lin", "lincat", "with",
                   "open", "in", "param", "linref", "table", "let", "case", "overload"]
-commonBuiltins = ["Phrase", "Item", "Kind", "Quality", "Item"]
+commonBuiltins = ["Phrase", "Item", "Kind", "Quality"]
 commonDefiners = ["abstract", "concrete", "resource",
                   "incomplete", "instance", "interface"]
 GFshellCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse", "ca", "compute_conctete", "cc",
@@ -48,6 +47,7 @@ GFshellCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse",
                    "ut", "visualize_dependency", "vd", "visualize_parse", "vp", "visualize_tree", "vt", "write_file", "wf"]
 kernelCommands = ["view", "clean"]
 commonCommands = GFshellCommands + kernelCommands
+allKeywords = commonKeywords+commonBuiltins+commonDefiners+commonCommands
 
 
 def parse(code):
@@ -104,3 +104,24 @@ def parse_command(command):
     except:
         ret_dict['cmd'] = command
         return ret_dict
+
+def get_current_word(code, cursorPos):
+    """Returns the word before the `cursorPos`"""
+    import re
+    last_word = []
+    wordChar = re.compile("[a-zA-Z]")
+    for i in range(cursorPos-1,-1,-1):
+        if wordChar.match(code[i]):
+            last_word.append(code[i])
+        else:
+            break
+    return "".join(reversed(last_word))
+
+def get_matches(last_word):
+    import re
+    matches = []
+    regex = re.compile("%s" % (last_word))
+    for word in allKeywords:
+        if regex.match(word):
+            matches.append(word)
+    return matches

@@ -31,11 +31,10 @@ Install the kernel module with:
 
 Usage
 -----
-Note that the kernel will use the directory you open a notebook from as the source directory for GF commands. If you wish to permanently set your GF kernel source directory to a specific directory please use the configure script first:
+In case your GF shell binary isn't located in `/usr/bin/` use the configure script to tell the kernel where to find it.
 
     ./configure
 
-In case your GF shell binary isn't located in `/usr/bin/` you can also use it to tell the kernel where to find it.
 You're now ready to go and can start a Jupyter notebook with:
 
     jupyter notebook

@@ -10,26 +10,10 @@ EOF
     echo "export GF_BIN=$GF_BIN"
 }
 
-function read_gf_lib() {
-    cat << EOF
-Please state your GF source directory. The source directory for the kernel
-will permanently be set to this directory. Leaving the prompt empty will
-result in the default option.
-EOF
-
-    printf "GF_LIB="
-    read GF_LIB
-    echo "export GF_LIB=$GF_LIB"
-}
 
 function add_gf_bin_to_profile() {
     echo "export GF_BIN=$GF_BIN" >> $HOME/.profile
     echo "Added GF_BIN to $HOME/.profile"
-}
-
-function add_gf_lib_to_profile() {
-    echo "export GF_LIB=$GF_LIB" >> $HOME/.profile
-    echo "Added GF_LIB to $HOME/.profile"
 }
 
 
@@ -39,8 +23,6 @@ function main() {
     echo ""
     read_gf_bin
 
-    echo ""
-    read_gf_lib
 
     echo ""
     echo "Writing confiuration"
@@ -49,10 +31,6 @@ function main() {
         add_gf_bin_to_profile
     fi;
     
-    if [ ! -z "$GF_LIB" ]
-    then
-        add_gf_lib_to_profile
-    fi;
 
     cat << EOF
 The configuration will be written into $HOME/.profile for the changes to take effect please reboot
