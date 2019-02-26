@@ -21,7 +21,7 @@ define([
                                 "table", "let", "case", "overload", "lindef", "def", "data", "oper"];
                         var commonBuiltins = ["Phrase", "Item", "Kind", "Quality", "Str"];
                         var commonDefiners = ["abstract", "concrete", "resource", "incomplete", "instance", "interface"];
-                        var GFshellCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse", "ca",
+                        var commonGFCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse", "ca",
                                 "compute_conctete", "cc", "define_command", "dc", "depencency_graph", "dg",
                                 "define_tree", "dt", "empty", "e", "example_based", "eb", "execute_history", "eh",
                                 "generate_random", "gr", "generate_trees", "gt", "h", "import", "i",
@@ -32,7 +32,7 @@ define([
                                 "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt",
                                 "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp",
                                 "visualize_tree", "vt", "write_file", "wf"];
-                        var commonKernelCommands = ["view", "clean", "help"];
+                        var commonKernelCommands = ["view", "clean", "help", "export"];
                         CodeMirror.registerHelper("hintWords", "gf", commonKeywords.concat(commonBuiltins));
 
                         function top(state) {
@@ -74,8 +74,9 @@ define([
                                 }
                                 var keywords = wordRegexp(myKeywords);
                                 var builtins = wordRegexp(myBuiltins);
-                                var GFCommands = wordRegexp(GFshellCommands)
+                                var GFCommands = wordRegexp(commonGFCommands)
                                 var kernelCommands = wordRegexp(commonKernelCommands)
+                                var commands = wordRegexp(commonGFCommands.concat(commonKernelCommands))
                                 var definers = wordRegexp(commonDefiners);
 
                                 // tokenizers
@@ -116,13 +117,13 @@ define([
                                 function tokenBaseInner(stream, state) {
                                         if (stream.eatSpace()) return null;
 
-                                        // Handle shell commands
+                                        // Handle shell command options
                                         if (stream.match(/-\w*=\w*/)) return "variable-2"
 
-                                        // Handle Comments
+                                        // Handle single line comments
                                         if (stream.match(/^--.*/)) return "comment";
 
-                                        // Handle multiline comments
+                                        // Handle multi line comments
                                         if (stream.match(/{-/)) {
                                                 state.tokenize = tokenComment
                                                 return state.tokenize(stream, state);
@@ -192,8 +193,9 @@ define([
                                         if (stream.match(builtins))
                                                 return "builtin";
 
-                                        if (stream.match(GFCommands)){
+                                        if (stream.match(commands, false)){
                                                 if (state.contentCell){
+                                                        stream.match(commands)
                                                         if (commonDefiners.includes(state.lastToken))
                                                                 return "def";
                                                         if (state.lastToken == "of")
@@ -201,28 +203,19 @@ define([
                                                         return "variable";
                                                 }
                                                 else{
-                                                        return "tag";
+                                                        if(stream.match(GFCommands)) return "tag";
+                                                        if(stream.match(kernelCommands)) return "atom";
                                                 }
                                         }
 
-                                        if (stream.match(kernelCommands)){
-                                                if (state.contentCell){
-                                                        if (commonDefiners.includes(state.lastToken))
-                                                                return "def";
-                                                        if (state.lastToken == "of")
-                                                                return "meta";
-                                                        return "variable";
-                                                }
-                                                else{
-                                                        return "atom";
-                                                }
-                                        }
 
                                         if (stream.match(identifiers)) {
-                                                if (commonDefiners.includes(state.lastToken))
+                                                console.log(""+stream.current()+" "+state.lastToken+"\n")
+                                                if (commonDefiners.includes(state.lastToken) || state.lastToken == "export" || state.lastToken == "import")
                                                         return "def";
                                                 if (state.lastToken == "of")
                                                         return "meta";
+                                                
                                                 return "variable";
                                         }
 
@@ -424,7 +417,10 @@ define([
                                                 var style = tokenLexer(stream, state);
 
                                                 if (style && style != "comment")
-                                                        state.lastToken = (style == "keyword" || style == "punctuation") ? stream.current() : style;
+                                                        if(stream.current() == "import")
+                                                                state.lastToken = stream.current()
+                                                        else
+                                                                state.lastToken = (style == "keyword" || style =="atom" || style == "punctuation") ? stream.current() : style;
                                                 if (style == "punctuation") style = null;
 
                                                 if (stream.eol() && state.lambda)

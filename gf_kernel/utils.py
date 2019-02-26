@@ -35,7 +35,7 @@ GFshellCommands = ["abstract_info", "ai", "align_words", "al", "clitic_analyse",
                    "r", "read_file", "rf", "rank_trees", "rt", "show_dependencies", "sd", "set_encoding", "se", "show_operations",
                    "so", "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt", "unicode_table",
                    "ut", "visualize_dependency", "vd", "visualize_parse", "vp", "visualize_tree", "vt", "write_file", "wf"]
-kernelCommands = ["view", "clean"]
+kernelCommands = ["view", "clean", "export"]
 commonCommands = GFshellCommands + kernelCommands
 allKeywords = commonKeywords+commonBuiltins+commonDefiners+commonCommands
 
