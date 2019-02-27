@@ -1,24 +1,14 @@
-import sys
 import os
-import ipywidgets
-import subprocess
-import time
-import re
-
-from jupyter_client import KernelClient
 
 from .utils import to_display_data, get_current_word, get_matches
 from .GFRepl import GFRepl
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from urllib.parse import quote
 
-from IPython.display import display, Image, TextDisplayObject
+from IPython.display import display
 from ipywidgets import widgets
 
-from traitlets import Instance, Type, Any, List, Bool
+from traitlets import Instance, Type, Any, Bool
 from ipykernel.kernelbase import Kernel
 from ipykernel.comm import CommManager
 from ipykernel.zmqshell import ZMQInteractiveShell
