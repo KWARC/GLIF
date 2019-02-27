@@ -20,7 +20,7 @@ Install all necessary packages:
 
 Clone the kernel:
 
-    git clone https://github.com/kaiamann/gf_kernel
+    git clone https://github.com/kwarc/gf_kernel
     cd gf_kernel
 
 Install the kernel module with:
