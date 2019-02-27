@@ -25,7 +25,7 @@ function main() {
 
 
     echo ""
-    echo "Writing confiuration"
+    echo "Writing configuration"
     if [ ! -z "$GF_BIN" ]
     then
         add_gf_bin_to_profile
