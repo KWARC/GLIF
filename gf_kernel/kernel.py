@@ -27,6 +27,7 @@ GF_BIN = os.environ.get('GF_BIN', '/usr/bin/gf')
 
 # ----------------------------------  KERNEL  ----------------------------------
 
+
 class GFKernel(Kernel):
     implementation = 'GF'
     implementation_version = '1.0'
@@ -40,12 +41,13 @@ class GFKernel(Kernel):
     }
     banner = "GF"
 
-    shell = Instance('IPython.core.interactiveshell.InteractiveShellABC', allow_none=True)
+    shell = Instance(
+        'IPython.core.interactiveshell.InteractiveShellABC', allow_none=True)
     shell_class = Type(ZMQInteractiveShell)
 
     use_experimental_completions = Bool(True,
-        help="Set this flag to False to deactivate the use of experimental IPython completion APIs.",
-        ).tag(config=True)
+                                        help="Set this flag to False to deactivate the use of experimental IPython completion APIs.",
+                                        ).tag(config=True)
 
     user_module = Any()
 
@@ -86,7 +88,6 @@ class GFKernel(Kernel):
         # initialize the GFRepl
         self.GFRepl = GFRepl(GF_BIN)
 
-  
     def start(self):
         self.shell.exit_now = False
         super(GFKernel, self).start()
@@ -109,9 +110,7 @@ class GFKernel(Kernel):
             'dependencies_met': True,
             'engine': self.ident,
         })
-        return md 
-    
-    
+        return md
 
     def do_execute(self, code, silent=False, store_history=True, user_expressions=None, allow_stdin=True):
         """Called when the user inputs code"""
@@ -123,12 +122,14 @@ class GFKernel(Kernel):
                 try:
                     with open(file_name, "rb") as f:
                         img = f.read()
-                    display(widgets.Image(value=img,format='png'))
+                    display(widgets.Image(value=img, format='png'))
                 except:
-                    self.send_response(self.iopub_socket, 'display_data', to_display_data("There is no tree to show!"))
+                    self.send_response(self.iopub_socket, 'display_data', to_display_data(
+                        "There is no tree to show!"))
 
             elif msg['message']:
-                self.send_response(self.iopub_socket, 'display_data', to_display_data(msg['message']))
+                self.send_response(
+                    self.iopub_socket, 'display_data', to_display_data(msg['message']))
 
             elif msg['trees']:
                 dd = widgets.Dropdown(
@@ -137,19 +138,21 @@ class GFKernel(Kernel):
                     description='Tree of:',
                     disabled=False,
                 )
-                file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],msg['trees'][0]))
+                file_name = self.GFRepl.handle_single_view(
+                    "%s %s" % (msg['tree_type'], msg['trees'][0]))
                 with open(file_name, "rb") as f:
                     img = f.read()
-                image = widgets.Image(value=img,format='png')
+                image = widgets.Image(value=img, format='png')
 
                 def on_value_change(change):
-                    file_name = self.GFRepl.handle_single_view("%s %s" % (msg['tree_type'],change['new']))
+                    file_name = self.GFRepl.handle_single_view(
+                        "%s %s" % (msg['tree_type'], change['new']))
                     with open(file_name, "rb") as f:
                         img = f.read()
                     image.value = img
 
-                dd.observe(on_value_change, names='value')  
-                display(dd,image)
+                dd.observe(on_value_change, names='value')
+                display(dd, image)
 
         return {'status': 'ok',
                 # The base class increments the execution count
@@ -157,28 +160,28 @@ class GFKernel(Kernel):
                 'execution_count': self.execution_count,
                 'user_expressions': {},
                 }
-  
-    def do_shutdown(self,restart):
+
+    def do_shutdown(self, restart):
         """Called when the kernel is terminated"""
         self.GFRepl.do_shutdown()
 
-    def do_complete(self,code,cursorPos):
+    def do_complete(self, code, cursorPos):
         """Autocompletion when the user presses tab"""
         # load the shortcuts from the unicode-latex-map
-        last_word = get_current_word(code,cursorPos)
+        last_word = get_current_word(code, cursorPos)
         matches = get_matches(last_word)
         if not last_word or not matches:
             matches = None
-            
+
         return {
-            'matches' : matches,
-            'cursor_start' : cursorPos-len(last_word),
-            'cursor_end' : cursorPos,
-            'metadata' : {},
-            'status' : 'ok'
+            'matches': matches,
+            'cursor_start': cursorPos-len(last_word),
+            'cursor_end': cursorPos,
+            'metadata': {},
+            'status': 'ok'
         }
 
-        
+
 if __name__ == '__main__':
     from ipykernel.kernelapp import IPKernelApp
     IPKernelApp.launch_instance(kernel_class=GFKernel)

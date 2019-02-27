@@ -1,13 +1,14 @@
-def to_display_data(message,mimetype='text/plain'):
+def to_display_data(message, mimetype='text/plain'):
     """wraps the message into the display_data format"""
     return {
         'data': {
-            mimetype : message
+            mimetype: message
         },
         'metadata': {},
         'transient': {},
     }
-   
+
+
 def readFile(fn, cursor_pos=0):
     """Reads the file with name `fn` starting at `cursor_pos`"""
     fd = open(fn, 'r')
@@ -74,20 +75,21 @@ def parse(code):
 
 def to_message_format(message=None, file=None, trees=None, tree_type=None):
     return {
-        'message' : message,
-        'file' : file,
-        'trees' : trees,
-        'tree_type' : tree_type
+        'message': message,
+        'file': file,
+        'trees': trees,
+        'tree_type': tree_type
     }
+
 
 def parse_command(command):
     ret_dict = {
-        'cmd' : None,
-        'tree_type' : None
+        'cmd': None,
+        'tree_type': None
     }
     try:
         cmd, tree_type = command.split('|')
-        tree_type.replace(' ','')
+        tree_type.replace(' ', '')
         ret_dict['cmd'] = cmd
         ret_dict['tree_type'] = tree_type
         return ret_dict
@@ -95,17 +97,19 @@ def parse_command(command):
         ret_dict['cmd'] = command
         return ret_dict
 
+
 def get_current_word(code, cursorPos):
     """Returns the word before the `cursorPos`"""
     import re
     last_word = []
     wordChar = re.compile("[a-zA-Z]")
-    for i in range(cursorPos-1,-1,-1):
+    for i in range(cursorPos-1, -1, -1):
         if wordChar.match(code[i]):
             last_word.append(code[i])
         else:
             break
     return "".join(reversed(last_word))
+
 
 def get_matches(last_word):
     import re
