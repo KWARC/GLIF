@@ -31,10 +31,6 @@ Install the kernel module with:
 
 Usage
 -----
-In case your GF shell binary isn't located in `/usr/bin/` use the configure script to tell the kernel where to find it.
-
-    ./configure
-
 You're now ready to go and can start a Jupyter notebook with:
 
     jupyter notebook

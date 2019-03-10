@@ -12,8 +12,9 @@ from traitlets import Instance, Type, Any, Bool
 from ipykernel.kernelbase import Kernel
 from ipykernel.comm import CommManager
 from ipykernel.zmqshell import ZMQInteractiveShell
+from distutils.spawn import find_executable
 
-GF_BIN = os.environ.get('GF_BIN', '/usr/bin/gf')
+GF_BIN = find_executable('gf')
 
 # ----------------------------------  KERNEL  ----------------------------------
 
