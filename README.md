@@ -5,8 +5,11 @@ GF Kernel
 
 Prerequisites
 -------------
-If you haven't installed GF already, get it from the official [download website](https://www.grammaticalframework.org/download/index.html).
 
+This package requires Python 3 (or newer) and this README assumes that this is the default python version. 
+If in doubt, use `python3` instead of `python` and `python3 -m pip` instead of `pip`. 
+
+If you haven't installed GF already, get it from the official [download website](https://www.grammaticalframework.org/download/index.html).
 
 For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please make sure you have it installed:
     
@@ -15,6 +18,9 @@ For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please 
 or under Mac OS X with [homebrew](https://brew.sh):
 
     brew install graphviz
+
+Additionally, `setuptools` is required to install this package. 
+This likely came with your Python distribution, but in case it did not use `pip install setuptools` to install it.  
 
 Installation
 ------------
