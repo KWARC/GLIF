@@ -27,7 +27,7 @@ You can either install the kernel from the source repository:
 
 or install it directly from pip:
 
-    pip install gf_kernel
+    pip install gf-kernel
 
 Afterwards, install the kernel module with:
 

@@ -1,30 +1,32 @@
-from distutils.core import setup
+import setuptools
 
-with open('README.md') as f:
-    readme = f.read()
+# read the contents of your README file
+from os import path
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
-setup(
+setuptools.setup(
     name='gf_kernel',
-    version='1.0',
-    packages=['gf_kernel'],
+    version='1.0.0',
+    packages=setuptools.find_packages(),
     install_requires = [
-        'ipykernel >= 5.1.0',
-        'ipython >= 7.2.0',
-        'ipywidgets >= 7.4.2',
-        'jupyter >= 1.0.0',
-        'jupyter-client >= 5.2.4',
+        'ipykernel>=5.1.0',
+        'ipython>=7.2.0',
+        'ipywidgets>=7.4.2',
+        'jupyter>=1.0.0',
+        'jupyter-client>=5.2.4',
     ],
-    # package_data={
-    #     'gf_kernel' : ['unicode-latex-map']
-    # },
     description='Simple example kernel for GF',
-    long_description=readme,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    include_package_data=True,
     author='Kai Amann',
     author_email='kai.amann@fau.de',
     url='https://github.com/UniFormal/gf_kernel',
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3',
     ]
     
