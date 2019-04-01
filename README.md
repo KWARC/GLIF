@@ -8,24 +8,29 @@ Prerequisites
 If you haven't installed GF already, get it from the official [download website](https://www.grammaticalframework.org/download/index.html).
 
 
-For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please make sure you have it installed.
+For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please make sure you have it installed:
     
     sudo apt install graphviz
 
+or under Mac OS X with [homebrew](https://brew.sh):
+
+    brew install graphviz
+
 Installation
 ------------
-Install all necessary packages:
 
-    pip install -r requirements.txt
-
-Clone the kernel:
+You can either install the kernel from the source repository: 
 
     git clone https://github.com/kwarc/gf_kernel
     cd gf_kernel
+    pip install .
 
-Install the kernel module with:
+or install it directly from pip:
 
-    python setup.py install
+    pip install gf_kernel
+
+Afterwards, install the kernel module with:
+
     python -m gf_kernel.install
     
 
