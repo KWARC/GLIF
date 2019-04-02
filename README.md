@@ -59,6 +59,6 @@ In addition to the GF shell commands the kernel supports the following commands:
 - `export` : saves the specified grammar in the current diretory
 - `clean` : removes all `.dot`, `.png` and `.gfo` files from the current directory
 
-Please refer to the tutorial notebook to see how exactly they are used.
+Here you can see a short example of how the kernel can be used. The full tutorial is available [here](https://github.com/KWARC/gf_kernel/blob/master/tutorial/Tutorial.ipynb).
 
-This package requires Python 3.
+![gf_kernel_screenshot](https://user-images.githubusercontent.com/32933575/55400990-b0e3b080-554f-11e9-9c60-96968197ca66.png)
