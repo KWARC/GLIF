@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='gf_kernel',
+    name='glf_kernel',
     version='1.0.0',
     packages=setuptools.find_packages(),
     install_requires = [
@@ -23,7 +23,7 @@ setuptools.setup(
     include_package_data=True,
     author='Kai Amann',
     author_email='kai.amann@fau.de',
-    url='https://github.com/UniFormal/gf_kernel',
+    url='https://github.com/UniFormal/glf_kernel',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
