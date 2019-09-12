@@ -16,9 +16,7 @@ class MMTInterface():
         self.content_path = self.get_content_path()
         # set COMMA/JUPYTER as default archive
         self.archive = 'comma/jupyter'
-
-        self.view_name = None
-        self.grammar_name = None
+        self.view = None
     
         # FIXME what does -w do??
         MMT_ARGS = [
@@ -34,16 +32,24 @@ class MMTInterface():
         self.mmt.stdin.write('server on 8080\n')
         self.mmt.stdin.flush()
     
-    def set_grammar(self, name):
-        "Sets the current grammar to the specified grammar"
-        self.grammar_name = name
-    
+    def handle_archive(self, args):
+        """
+            Handles the archive command:
+
+            args: list; list of arguments
+        """
+        if args[0] == '-c':
+            return self.create_archive(args[1])
+        else:
+            return self.change_and_build_archive(args[0])
+
+
     def change_and_build_archive(self, name):
         """
             Checks if the specified archive exists and sets it as current archive.
             Also builds the archive.
 
-            ``name``: name of the archive to switch to
+            `name`: str; name of the archive to switch to
         """
         if isdir(join(self.content_path,name)):
             self.archive = name
@@ -54,9 +60,9 @@ class MMTInterface():
 
     def create_archive(self, name):
         """
-            creates a new archive with the name ``name`` and sets it as the current archive
+            creates a new archive with the name `name` and sets it as the current archive
 
-            ``name``: name of the new archive
+            `name`: str; name of the new archive
         """
         # set up the paths
         archive_path = self.content_path
@@ -91,25 +97,29 @@ class MMTInterface():
         self.archive = name
         return 'Created %s' % (name)
         
-    def create_view(self, view, name):
+    def create_mmt_file(self, content, name, mmt_type):
         """
-            Creates a named view
+            Creates a named .mmt file containing either a view or a theory
 
-            ``view``: content of the view
+            `content`: str; content of the view
 
-            ``name``: name of the view
+            `name`: str;  name of the view
+        
+            `mmt_type`: str; type of content, either 'view' or 'theory'
         """
 
-        view_path = join(self.content_path, self.archive, 'source', name+'.mmt')
-        # try:
-        with open(view_path, 'w') as f:
-            f.write(view)
-            f.close()
-        self.view_name = name
-        self.build_archive()
-        return 'Created view %s' % (name)
-        # except OSError:
-        #     return 'Failed to create view %s' % name
+        view_path = join(self.content_path, self.archive, 'source', '%s.mmt' % name)
+        try:
+            with open(view_path, 'w') as f:
+                f.write(content)
+                f.close()
+            self.view_name = name
+            self.build_archive()
+            if(mmt_type == 'view'):
+                self.view = name
+            return 'Created %s %s' % (mmt_type, name)
+        except OSError:
+            return 'Failed to create view %s' % name
 
     def get_content_path(self):
         """reads the the path to the MMT-content folder from mmtrc and returns it"""
@@ -134,47 +144,37 @@ class MMTInterface():
         self.mmt.stdin.flush()
     
     def do_shutdown(self):
+        "Shuts down the MMT server and the MMT shell"
         self.mmt.stdin.write('server off\n')
         self.mmt.communicate('exit\n')[0]
         self.mmt.stdin.close()
         self.mmt.kill()
     
-    def request(self, ASTs, returnType='text'):
-        """sends a request to the MMT GLF server"""
-        if not self.grammar_name:
-            return 'No grammar specified!'
-        if not self.view_name:
-            return 'No view specified!'
+    def handle_request(self, args):
+        """
+            Sends a request to the MMT GLF server
 
-        j = {   "languageTheory": "http://mathhub.info/COMMA/JUPYTER/%s.gf/%s.gf" % (self.grammar_name, self.grammar_name),
-                "semanticsView": "http://mathhub.info/COMMA/JUPYTER/%s" % (self.view_name),
-                "ASTs": [ASTs]
+            `args`: list; list of arguments
+        """
+
+        if(args[0] == '-v'):
+            view = args[1]
+            self.view = view
+            ASTsStr = ' '.join(args[2:])
+        else:
+            view = self.view
+            ASTsStr = ' '.join(args)
+
+        h = ASTsStr.split('|')
+        ASTs = list(map(str.strip, h))
+
+        j = {   
+            "semanticsView": "http://mathhub.info/%s/%s" % (self.archive.upper(), view),
+            "ASTs": ASTs
         }
         try:
             resp = requests.post("http://localhost:8080/:glf", json=j)
         except:
             return "Something went wrong during the request"
         if resp.status_code == 200:
-            if returnType == 'json':
-                return resp.json()
-            else:
-                return resp.text
-        
-
-
-
-
-
-
-
-
-
-    def test_request(self):
-        # TODO REMOVE THIS
-        return self.mmt_request("http://mathhub.info/COMMA/JUPYTER/Grammar.gf/Grammar.gf",
-                                "http://mathhub.info/COMMA/JUPYTER/grammarSem",
-                                ["make_sentence john run"])
-    def test_build(self):
-        # TODO REMOVE THIS
-        self.build_archive()
-        return "done"
+            return resp.text

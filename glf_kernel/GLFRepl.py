@@ -65,12 +65,13 @@ class GLFRepl:
             return "No files removed"
 
     def do_export(self, file_name):
-        files = os.listdir(self.td.name)
+        source_path = os.path.join(self.mmtInterface.content_path, self.mmtInterface.archive, 'source')
+        files = os.listdir(source_path)
         file_reg = re.compile('^%s.gf$' % (file_name))
         for file in files:
             if file_reg.match(file):
                 from shutil import copy2
-                copy2(os.path.join(self.td.name, file), file)
+                copy2(os.path.join(source_path, file), file)
                 return 'Exported %s' % (file)
         return 'Could not find %s' % (file_name)
 
@@ -85,22 +86,27 @@ class GLFRepl:
                     args = command['args']
                     if name == 'view':
                         messages.append(
-                            self.handle_multiple_view(args))
+                            self.handle_multiple_view(' '.join(args)))
                     elif name == 'clean':
                         messages.append(to_message_format(
                             message=self.clean_up()))
                     elif name == 'export':
-                        messages.append(to_message_format(
-                            message=self.do_export(args)))
-                    elif name == 'create_archive':
-                        messages.append(to_message_format(
-                            message=self.mmtInterface.create_archive(args)))
-                    elif name == 'change_archive':
-                        messages.append(to_message_format(
-                            message=self.mmtInterface.change_and_build_archive(args)))
+                        if len(args) > 1:
+                            messages.append(to_message_format(
+                                message="export only takes one argument!"))
+                        else:
+                            messages.append(to_message_format(
+                                message=self.do_export(args[0])))
+                    elif name == 'archive':
+                        if len(args) > 2:
+                            messages.append(to_message_format(
+                                message="archive takes at maximum two arguments!"))
+                        else:
+                            messages.append(to_message_format(
+                                message=self.mmtInterface.handle_archive(args)))
                     elif name == 'request':
                         messages.append(to_message_format(
-                            message=self.mmtInterface.request(args)))
+                            message=self.mmtInterface.handle_request(args)))
                     elif name == 'help':
                         # TODO move this to another external file (probably a json)
                         messages.append(to_message_format("""Available kernel commands: 
@@ -111,7 +117,7 @@ h : display more information on the GF shell commands
 Otherwise you can use the kernel as an editor for your grammars.
 Stated grammars are automatically imported upon definiton.""" % (", ".join(self.to_clean_up))))
                     else:
-                        cmd = '%s %s' % (name, args)
+                        cmd = '%s %s' % (name, ' '.join(args))
                         msg = self.handle_shell_input(cmd)
                         if name == 'import' and not msg:
                             messages.append(to_message_format(
@@ -123,7 +129,7 @@ Stated grammars are automatically imported upon definiton.""" % (", ".join(self.
                     message=self.handle_grammar(code, parse_dict['name'])))
             elif parse_dict['type'] == 'MMTContent':
                 messages.append(to_message_format(
-                    message=self.mmtInterface.create_view(code, parse_dict['name'])))
+                    message=self.mmtInterface.create_mmt_file(code, parse_dict['name'], parse_dict['mmt_type'])))
 
         else:
             messages.append(to_message_format(
@@ -131,20 +137,26 @@ Stated grammars are automatically imported upon definiton.""" % (", ".join(self.
 
         return messages
 
-    def handle_grammar(self, grammar, name):
-        """Handles a grammar input"""
+    def handle_grammar(self, content, name):
+        """
+            Handles a grammar input
+
+            ``grammar``: str; the content of the grammar
+
+            ``name``: str; the name of the grammar
+        """
         
         file_path = "%s.gf" % (os.path.join(self.mmtInterface.content_path, self.mmtInterface.archive, 'source', name))
         try:
             with open(file_path, 'w') as f:
-                f.write(grammar)
+                f.write(content)
                 f.close()
         except OSError:
             return 'Failed to create grammar %s' % (name)
-        self.mmtInterface.set_grammar(name)
         out = self.handle_shell_input(
-            "import %s.gf" % (os.path.join(self.td.name, name)))
+            "import %s" % (file_path))
         if not out:
+            self.mmtInterface.build_archive()
             out = "Defined %s" % (name)
         return out
 

@@ -37,8 +37,9 @@ GFshellCommands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse',
                    'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
                    'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
 kernelCommands = ['view', 'clean', 'export', 'help']
-mmtDefiners = ['namespace', 'theory', 'view']
-glfCommands = ['create_archive','change_archive','request']
+mmtDefiners = ['theory', 'view']
+glfCommands = ['archive','request']
+mmtDelimiters = ['\u2758','\u2759','\u275A']
 commonCommands = GFshellCommands + kernelCommands + glfCommands
 
 allKeywords = gfKeywords + gfBuiltins + gfDefiners + commonCommands + mmtDefiners
@@ -61,7 +62,7 @@ def parse(code):
                 isGFContent = True
                 lastWord = word
                 continue
-            if word in mmtDefiners:
+            if (word in mmtDefiners and contains(code, mmtDelimiters))or word == 'namespace':
                 isMMTContent = True
                 lastWord = word
                 continue
@@ -71,22 +72,27 @@ def parse(code):
                 parseDict['commands'] = []
                 return parseDict
             if isMMTContent and word not in mmtDefiners and lastWord in mmtDefiners:
-                # TODO change this according to usage in the notebooks
-                _ , h = code.split('view ')
-                name,_ = h.split(' ', 1)
                 parseDict['type'] = 'MMTContent'
-                parseDict['name'] = name
+                parseDict['name'] = word
+                if lastWord == 'theory':
+                    parseDict['mmt_type'] = 'theory'
+                else:
+                    parseDict['mmt_type'] = 'view'
                 parseDict['commands'] = []
                 return parseDict
             if not isGFContent and not isMMTContent and word in commonCommands and word == words[0]:
                 command = {
                     'name': word,
-                    'args': ' '.join(words[1:])
+                    'args': words[1:]
                 }
                 parseDict['type'] = 'commands'
                 parseDict['commands'].append(command)
     return parseDict
 
+
+def contains(string, set):
+    """checks if the given string contains any characters from set"""
+    return True in [char in string for char in set]
 
 def to_message_format(message=None, file=None, trees=None, tree_type=None):
     return {
@@ -104,7 +110,7 @@ def parse_command(command):
     }
     try:
         cmd, tree_type = command.split('|')
-        tree_type.replace(' ', '')
+        tree_type.strip()
         ret_dict['cmd'] = cmd
         ret_dict['tree_type'] = tree_type
         return ret_dict
@@ -136,31 +142,33 @@ def get_matches(last_word):
     return matches
 
 
-print(parse("""namespace http://mathhub.info/COMMA/JUPYTER ❚
+# print(parse("""namespace http://mathhub.info/COMMA/JUPYTER ❚
 
-theory FolLogic : ur:?LF =
-	o : type ❙
-	ι : type ❙
-	and : o ⟶ o ⟶ o ❘ # 1 ∧ 2 ❙
-❚
+# theory FolLogic : ur:?LF =
+# 	o : type ❙
+# 	ι : type ❙
+# 	and : o ⟶ o ⟶ o ❘ # 1 ∧ 2 ❙
+# ❚
 
-theory DomainTheory : ?FolLogic =
-	john : ι ❙
-	mary : ι ❙
-	run : ι ⟶ o ❙
-	happy : ι ⟶ o ❙
-❚
+# theory DomainTheory : ?FolLogic =
+# 	john : ι ❙
+# 	mary : ι ❙
+# 	run : ι ⟶ o ❙
+# 	happy : ι ⟶ o ❙
+# ❚
 
-view grammarSem : http://mathhub.info/COMMA/JUPYTER/Grammar.gf?Grammar.gf  -> ?DomainTheory =
-	Person = ι ❙
-	Action = ι ⟶ o ❙
-	Sentence = o ❙
-	john = john ❙
-	mary = mary ❙
-	run = run ❙
-	be_happy = happy ❙
-	make_sentence = [p,a] a p ❙
-	and = and ❙
-❚
+# view grammarSem : http://mathhub.info/COMMA/JUPYTER/Grammar.gf?Grammar.gf  -> ?DomainTheory =
+# 	Person = ι ❙
+# 	Action = ι ⟶ o ❙
+# 	Sentence = o ❙
+# 	john = john ❙
+# 	mary = mary ❙
+# 	run = run ❙
+# 	be_happy = happy ❙
+# 	make_sentence = [p,a] a p ❙
+# 	and = and ❙
+# ❚
 	
-"""))
+# """))
+
+
