@@ -16,7 +16,7 @@ def readFile(fn, cursor_pos=0):
     line = fd.readline()
     out = ""
     while line:
-        if line != '\n':
+        if line != '\n' and line != ' ' and line != '':
             out += line
         line = fd.readline()
     fd.close()
@@ -28,7 +28,7 @@ gfKeywords = ['flags', 'startcat', 'cat', 'fun', 'of', 'lin', 'lincat', 'with',
 gfBuiltins = ['Str']
 gfDefiners = ['abstract', 'concrete', 'resource',
                   'incomplete', 'instance', 'interface']
-GFshellCommands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca', 'compute_conctete', 'cc',
+GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca', 'compute_conctete', 'cc',
                    'define_command', 'dc', 'depencency_graph', 'dg', 'define_tree', 'dt', 'empty', 'e', 'example_based', 'eb',
                    'execute_history', 'eh', 'generate_random', 'gr', 'generate_trees', 'gt', 'h', 'import', 'i',
                    'linearize', 'l', 'linearize_chunks', 'lc', 'morpho_analyse', 'ma', 'morpho_quiz', 'mq', 'parse', 'p',
@@ -36,11 +36,11 @@ GFshellCommands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse',
                    'r', 'read_file', 'rf', 'rank_trees', 'rt', 'show_dependencies', 'sd', 'set_encoding', 'se', 'show_operations',
                    'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
                    'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
-kernelCommands = ['view', 'clean', 'export', 'help']
+kernel_commands = ['show', 'clean', 'export', 'help']
+MMT_commands = ['archive','request']
 mmtDefiners = ['theory', 'view']
-glfCommands = ['archive','request']
 mmtDelimiters = ['\u2758','\u2759','\u275A']
-commonCommands = GFshellCommands + kernelCommands + glfCommands
+commonCommands = GF_commands + kernel_commands + MMT_commands
 
 allKeywords = gfKeywords + gfBuiltins + gfDefiners + commonCommands + mmtDefiners
 
@@ -81,29 +81,63 @@ def parse(code):
                 parseDict['commands'] = []
                 return parseDict
             if not isGFContent and not isMMTContent and word in commonCommands and word == words[0]:
+                pipe_commands = list(map(str.strip, line.split('|')))
+                pipe_commands_dicts = []
+                for pipe_command in pipe_commands:
+                    pipe_command_dict = {
+                        'type': get_command_type(pipe_command),
+                        'command': pipe_command
+                    }
+                    pipe_commands_dicts.append(pipe_command_dict)
                 command = {
-                    'name': word,
-                    'args': words[1:]
+                    'pipe_commands': pipe_commands_dicts
                 }
                 parseDict['type'] = 'commands'
                 parseDict['commands'].append(command)
     return parseDict
 
 
+def get_command_type(command):
+    """
+        returns the type of command
+    """
+    name = get_name(command)
+    if name in MMT_commands:
+        return "MMT_command"
+    elif name in GF_commands:
+        return "GF_command"
+    elif name in kernel_commands:
+        return "kernel_command"
+    else:
+        return None
+
+def get_name(command):
+    """returns the name of the command"""
+    return command.split(' ')[0]
+
+def get_args(command):
+    """returns the arguments of the command or None if none exist"""
+    try:
+        return command.split(' ')[1:]
+    except:
+        return None
+
+
+
+
 def contains(string, set):
     """checks if the given string contains any characters from set"""
     return True in [char in string for char in set]
 
-def to_message_format(message=None, file=None, trees=None, tree_type=None):
+def to_message_format(message=None, file=None, trees=None):
     return {
         'message': message,
-        'file': file,
-        'trees': trees,
-        'tree_type': tree_type
+        'file' : file,
+        'trees' : trees
     }
 
 
-def parse_command(command):
+def parse_view_command(command):
     ret_dict = {
         'cmd': None,
         'tree_type': None
@@ -142,33 +176,5 @@ def get_matches(last_word):
     return matches
 
 
-# print(parse("""namespace http://mathhub.info/COMMA/JUPYTER ❚
-
-# theory FolLogic : ur:?LF =
-# 	o : type ❙
-# 	ι : type ❙
-# 	and : o ⟶ o ⟶ o ❘ # 1 ∧ 2 ❙
-# ❚
-
-# theory DomainTheory : ?FolLogic =
-# 	john : ι ❙
-# 	mary : ι ❙
-# 	run : ι ⟶ o ❙
-# 	happy : ι ⟶ o ❙
-# ❚
-
-# view grammarSem : http://mathhub.info/COMMA/JUPYTER/Grammar.gf?Grammar.gf  -> ?DomainTheory =
-# 	Person = ι ❙
-# 	Action = ι ⟶ o ❙
-# 	Sentence = o ❙
-# 	john = john ❙
-# 	mary = mary ❙
-# 	run = run ❙
-# 	be_happy = happy ❙
-# 	make_sentence = [p,a] a p ❙
-# 	and = and ❙
-# ❚
-	
-# """))
-
-
+# print(parse('parse -lang=Eng "John loves Mary and Mary loves John and John loves John" | vt | view'))
+# print(parse('parse "John loves Mary and Mary loves John" | request -v asdf'))

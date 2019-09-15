@@ -107,43 +107,48 @@ class GLFKernel(Kernel):
         """Called when the user inputs code"""
         # img_data = Image.open('/home/kai/gf_content/out.png','r')
         messages = self.GFRepl.handle_input(code)
+        files = []
+        trees = []
         for msg in messages:
-            if msg['file']:
-                file_name = msg['file']
-                try:
-                    with open(file_name, "rb") as f:
-                        img = f.read()
-                    display(widgets.Image(value=img, format='png'))
-                except:
-                    self.send_response(self.iopub_socket, 'display_data', to_display_data(
-                        "There is no tree to show!"))
-
-            elif msg['message']:
+            if msg['trees']:
+                trees = msg['trees']
+            if msg['message']:
                 self.send_response(
                     self.iopub_socket, 'display_data', to_display_data(msg['message']))
 
-            elif msg['trees']:
-                dd = widgets.Dropdown(
-                    options=msg['trees'],
-                    value=msg['trees'][0],
-                    description='Tree of:',
-                    disabled=False,
-                )
-                file_name = self.GFRepl.handle_single_view(
-                    "%s %s" % (msg['tree_type'], msg['trees'][0]))
+            elif msg['file']:
+                files.append(msg['file'])
+
+        if len(files) > 1:
+            dd = widgets.Dropdown(
+                options=trees,
+                value=trees[0],
+                description='Tree of:',
+                disabled=False,
+            )
+            file_name = files[0]
+            with open(file_name, "rb") as f:
+                img = f.read()
+            image = widgets.Image(value=img, format='png')
+
+            def on_value_change(change):
+                file_index = trees.index(change['new'])
+                file_name = files[file_index]
                 with open(file_name, "rb") as f:
                     img = f.read()
-                image = widgets.Image(value=img, format='png')
+                image.value = img
 
-                def on_value_change(change):
-                    file_name = self.GFRepl.handle_single_view(
-                        "%s %s" % (msg['tree_type'], change['new']))
-                    with open(file_name, "rb") as f:
-                        img = f.read()
-                    image.value = img
-
-                dd.observe(on_value_change, names='value')
-                display(dd, image)
+            dd.observe(on_value_change, names='value')
+            display(dd, image)
+        elif len(files) == 1:
+            file_name = files[0]
+            try:
+                with open(file_name, "rb") as f:
+                    img = f.read()
+                display(widgets.Image(value=img, format='png'))
+            except:
+                self.send_response(self.iopub_socket, 'display_data', to_display_data(
+                    "There is no tree to show!"))
 
         return {'status': 'ok',
                 # The base class increments the execution count

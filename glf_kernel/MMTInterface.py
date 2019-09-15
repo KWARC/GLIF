@@ -111,6 +111,7 @@ class MMTInterface():
         view_path = join(self.content_path, self.archive, 'source', '%s.mmt' % name)
         try:
             with open(view_path, 'w') as f:
+                f.write('namespace http://mathhub.info/%s ❚\n\n' % self.archive.upper())
                 f.write(content)
                 f.close()
             self.view_name = name
