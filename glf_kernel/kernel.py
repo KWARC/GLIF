@@ -12,9 +12,7 @@ from traitlets import Instance, Type, Any, Bool
 from ipykernel.kernelbase import Kernel
 from ipykernel.comm import CommManager
 from ipykernel.zmqshell import ZMQInteractiveShell
-from distutils.spawn import find_executable
 
-GF_BIN = find_executable('gf')
 
 # ----------------------------------  KERNEL  ----------------------------------
 
@@ -81,7 +79,7 @@ class GLFKernel(Kernel):
                 self.comm_manager, msg_type)
 
         # initialize the GFRepl
-        self.GFRepl = GLFRepl(GF_BIN)
+        self.GFRepl = GLFRepl()
 
     def start(self):
         self.shell.exit_now = False

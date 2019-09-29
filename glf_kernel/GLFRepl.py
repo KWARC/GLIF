@@ -7,15 +7,14 @@ import re
 from json import load
 from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
-from .utils import readFile, parse, parse_view_command,to_message_format, get_name, get_args, GF_commands
+from .utils import parse, to_message_format, get_name, get_args, GF_commands
 from .MMTInterface import MMTInterface
-
+from distutils.spawn import find_executable
 
 class GLFRepl:
 
-    def __init__(self, GF_BIN):
-        self.GF_BIN = GF_BIN
-
+    def __init__(self):
+        GF_BIN = find_executable('gf')
         GF_ARGS = [
             GF_BIN,
             '--run'
@@ -26,7 +25,7 @@ class GLFRepl:
         self.out_file_name = os.path.join(self.td.name, 'shell.out')
         self.out = open(self.out_file_name, 'w+')
         self.shell = Popen(GF_ARGS, stdin=PIPE,  text=True,
-                           stdout=self.out, stderr=self.out)
+                           stdout=self.out)
         self.pid = os.getpid()
         self.out_count = 0
 
@@ -94,7 +93,7 @@ class GLFRepl:
                             lines = res.split('\n')
                             trees = []
                             for line in lines:
-                                if line != '' and line != ' ':
+                                if line != '' and line != ' ' and line != '\n':
                                     if name == 'parse':
                                         trees.append(line)
                                     pipe_res.append(line)
@@ -248,10 +247,11 @@ class GLFRepl:
 
             `command`: str; the command
         """
+        # print('----------------------------------------------------------------------')
+        # print(repr(command))
 
         if self.out.closed:
             self.out = open(self.out_file_name, 'w')
-        cp_s = self.out.tell()
         # send the command
         if command[-1] != '\n':
             command = command+'\n'
@@ -265,8 +265,15 @@ class GLFRepl:
         # some shell commands (mostly the ones that are dealing with files) are asynchronous from the shells execution,
         # like e.g. searching a file to include. This means the notify process can report back even though the shell
         # hasn't actually written its output to the output file yet. Hence we need to wait a little here to be sure the output is there.
-        # time.sleep(0.01)
-        out = readFile(self.out_file_name, cp_s).replace('ExitFailure 1', '')
+        time.sleep(0.01)
+        out = ''
+        with open(self.out_file_name, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if line != '' and line != ' ' and line != '\n' and line:
+                    out += line
+        self.out.truncate(0)
+        self.out.seek(0)
         if get_name(command) == 'import' and not out:
             return 'Import successful!'
         else:
@@ -294,9 +301,8 @@ class GLFRepl:
                 f.close()
         except OSError:
             return 'Failed to create grammar %s' % (name)
-        out = self.handle_gf_command(
-            "import %s" % (file_path))
-        if not out:
+        out = self.handle_gf_command("import %s" % (file_path))
+        if out == 'Import successful!':
             # build the Grammar with the GlfBuild extension
             build_result = self.mmtInterface.build_file(file_name)
             if build_result['isSuccessful']:

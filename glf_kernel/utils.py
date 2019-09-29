@@ -9,20 +9,6 @@ def to_display_data(message, mimetype='text/plain'):
     }
 
 
-def readFile(fn, cursor_pos=0):
-    """Reads the file with name `fn` starting at `cursor_pos`"""
-    fd = open(fn, 'r')
-    fd.seek(cursor_pos)
-    line = fd.readline()
-    out = ""
-    while line:
-        if line != '\n' and line != ' ' and line != '':
-            out += line
-        line = fd.readline()
-    fd.close()
-    return out
-
-
 gfKeywords = ['flags', 'startcat', 'cat', 'fun', 'of', 'lin', 'lincat', 'with',
                   'open', 'in', 'param', 'linref', 'table', 'let', 'case', 'overload']
 gfBuiltins = ['Str']
@@ -55,7 +41,7 @@ def parse(code):
     isMMTContent = False
     isGFContent = False
     for line in lines:
-        words = line.split(' ')
+        words = line.strip().split(' ')
         lastWord = ''
         for word in words:
             if word in gfDefiners:
@@ -141,20 +127,6 @@ def to_message_format(message=None, graph=None, trees=None):
     }
 
 
-def parse_view_command(command):
-    ret_dict = {
-        'cmd': None,
-        'tree_type': None
-    }
-    try:
-        cmd, tree_type = command.split('|')
-        tree_type.strip()
-        ret_dict['cmd'] = cmd
-        ret_dict['tree_type'] = tree_type
-        return ret_dict
-    except:
-        ret_dict['cmd'] = command
-        return ret_dict
 
 
 def get_current_word(code, cursorPos):
