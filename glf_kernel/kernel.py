@@ -26,8 +26,12 @@ class GLFKernel(Kernel):
     language_version = '0.1'
     # TODO change this to gf
     language_info = {
-        'name': 'gf',
+        'codemirror_mode' : {
+            "name": "gf",
+            "version": 3
+        },
         'mimetype': 'text/gf',
+        'name': 'gf',
         'file_extension': '.gf',
     }
     banner = "GF"
@@ -105,9 +109,8 @@ class GLFKernel(Kernel):
 
     def do_execute(self, code, silent=False, store_history=True, user_expressions=None, allow_stdin=True):
         """Called when the user inputs code"""
-        # img_data = Image.open('/home/kai/gf_content/out.png','r')
         messages = self.GFRepl.handle_input(code)
-        files = []
+        graphs = []
         trees = []
         for msg in messages:
             if msg['trees']:
@@ -116,32 +119,35 @@ class GLFKernel(Kernel):
                 self.send_response(
                     self.iopub_socket, 'display_data', to_display_data(msg['message']))
 
-            elif msg['file']:
-                files.append(msg['file'])
+            elif msg['graph']:
+                graphs.append(msg['graph'])
 
-        if len(files) > 1:
+        if len(graphs) > 1:
             dd = widgets.Dropdown(
+                layout={'width': 'max-content'},
                 options=trees,
                 value=trees[0],
                 description='Tree of:',
                 disabled=False,
             )
-            file_name = files[0]
+            file_name = self.GFRepl.convert_to_png(graphs[0])
             with open(file_name, "rb") as f:
                 img = f.read()
             image = widgets.Image(value=img, format='png')
+            self.send_response(
+                    self.iopub_socket, 'display_data', to_display_data('%s graphs generated' % (len(graphs))))
 
             def on_value_change(change):
                 file_index = trees.index(change['new'])
-                file_name = files[file_index]
+                file_name = self.GFRepl.convert_to_png(graphs[file_index])
                 with open(file_name, "rb") as f:
                     img = f.read()
                 image.value = img
 
             dd.observe(on_value_change, names='value')
             display(dd, image)
-        elif len(files) == 1:
-            file_name = files[0]
+        elif len(graphs) == 1:
+            file_name = self.GFRepl.convert_to_png(graphs[0])
             try:
                 with open(file_name, "rb") as f:
                     img = f.read()
@@ -161,21 +167,28 @@ class GLFKernel(Kernel):
         """Called when the kernel is terminated"""
         self.GFRepl.do_shutdown()
 
-    def do_complete(self, code, cursorPos):
+    def do_complete(self,code,cursorPos):
         """Autocompletion when the user presses tab"""
         # load the shortcuts from the unicode-latex-map
-        last_word = get_current_word(code, cursorPos)
-        matches = get_matches(last_word)
-        if not last_word or not matches:
-            matches = None
+        charMapPath = os.path.dirname(os.path.realpath(__file__))
+        shortcuts = {}
+        with open(os.path.join(charMapPath,'unicode-latex-map'), 'r', encoding='utf-8') as charMap:
+            for line in charMap:
+                line = line.replace('j','',1)
+                line = line.replace('\n','',1)
+                st, repl = line.split("|", 1)
+                shortcuts[st] = repl
 
-        return {
-            'matches': matches,
-            'cursor_start': cursorPos-len(last_word),
-            'cursor_end': cursorPos,
-            'metadata': {},
-            'status': 'ok'
-        }
+        # use them for tab-completion
+        for k,v in shortcuts.items():
+            if code[cursorPos-len(k)-1:cursorPos] == "\\"+k:
+                return  {
+                    'matches' : [v],
+                    'cursor_end' : cursorPos,
+                    'cursor_start' : cursorPos-len(k)-1,
+                    'metadata' : {},
+                    'status' : 'ok'
+                }
 
 
 if __name__ == '__main__':

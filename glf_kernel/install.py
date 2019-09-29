@@ -10,7 +10,7 @@ from IPython.utils.tempdir import TemporaryDirectory
 kernel_json = {
     "argv": [sys.executable, "-m", "glf_kernel", "-f", "{connection_file}"],
     "display_name": "GLF",
-    "language": "glf",
+    "language": "gf",
 }
 
 

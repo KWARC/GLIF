@@ -37,7 +37,7 @@ GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca
                    'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
                    'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
 kernel_commands = ['show', 'clean', 'export', 'help']
-MMT_commands = ['archive','request']
+MMT_commands = ['archive','construct']
 mmtDefiners = ['theory', 'view']
 mmtDelimiters = ['\u2758','\u2759','\u275A']
 commonCommands = GF_commands + kernel_commands + MMT_commands
@@ -84,8 +84,12 @@ def parse(code):
                 pipe_commands = list(map(str.strip, line.split('|')))
                 pipe_commands_dicts = []
                 for pipe_command in pipe_commands:
+                    pipe_command_type = get_command_type(pipe_command)
+                    if not pipe_command_type:
+                        parseDict['type'] = None
+                        return parseDict
                     pipe_command_dict = {
-                        'type': get_command_type(pipe_command),
+                        'type': pipe_command_type,
                         'command': pipe_command
                     }
                     pipe_commands_dicts.append(pipe_command_dict)
@@ -129,10 +133,10 @@ def contains(string, set):
     """checks if the given string contains any characters from set"""
     return True in [char in string for char in set]
 
-def to_message_format(message=None, file=None, trees=None):
+def to_message_format(message=None, graph=None, trees=None):
     return {
         'message': message,
-        'file' : file,
+        'graph' : graph,
         'trees' : trees
     }
 
@@ -175,6 +179,3 @@ def get_matches(last_word):
             matches.append(word)
     return matches
 
-
-# print(parse('parse -lang=Eng "John loves Mary and Mary loves John and John loves John" | vt | view'))
-# print(parse('parse "John loves Mary and Mary loves John" | request -v asdf'))

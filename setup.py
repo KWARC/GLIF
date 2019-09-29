@@ -9,7 +9,10 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setuptools.setup(
     name='glf_kernel',
     version='1.0.0',
-    packages=setuptools.find_packages(),
+    packages=['glf_kernel'],
+    package_data={
+        'glf_kernel' : ['messages.json', 'unicode-latex-map']
+    },
     install_requires = [
         'ipykernel>=5.1.0',
         'ipython>=7.2.0',
@@ -17,7 +20,7 @@ setuptools.setup(
         'jupyter>=1.0.0',
         'jupyter-client>=5.2.4',
     ],
-    description='Simple example kernel for GF',
+    description='Simple example kernel for GLF',
     long_description=long_description,
     long_description_content_type='text/markdown',
     include_package_data=True,

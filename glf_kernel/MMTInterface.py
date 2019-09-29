@@ -6,9 +6,15 @@ import requests
 from os.path import join, expanduser, isdir
 from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
+from .utils import get_args
 
 # TODO maybe introduce env variables for this
-MMT_DEPLOY_LOCATION = join(expanduser('~'),'MMT','deploy')
+MMT_LOCATION = join(expanduser('~'),'MMT')
+GLF_BUILD_EXTENSION = 'info.kwarc.mmt.glf.GlfBuildServer'
+GLF_CONSTRUCT_EXTENSION = 'info.kwarc.mmt.glf.GlfConstructServer'
+
+# if set to true MMT logs will be printed into the Jupyter Console
+LOG_TO_CONSOLE = False
 
 class MMTInterface():
 
@@ -20,43 +26,54 @@ class MMTInterface():
     
         # FIXME what does -w do??
         MMT_ARGS = [
-            "java", "-jar", join(MMT_DEPLOY_LOCATION,'mmt.jar'), '-w'
+            'java', '-jar', join(MMT_LOCATION,'deploy','mmt.jar'), '-w'
         ]
 
         # start MMT
-        self.mmt = Popen(MMT_ARGS,preexec_fn=os.setsid,stdin=PIPE, text=True, encoding='utf-8')
+        if LOG_TO_CONSOLE:
+            stdout = None
+        else:
+            stdout = PIPE
+        self.mmt = Popen(MMT_ARGS,preexec_fn=os.setsid,stdin=PIPE, stdout=stdout, text=True, encoding='utf-8')
         # for some reason the mmt shell terminates(??) when additional arguments are supplied
-        self.mmt.stdin.write('extension info.kwarc.mmt.gf.GfImporter\n')
-        self.mmt.stdin.write('extension info.kwarc.mmt.glf.GlfServer\n')
-        self.mmt.stdin.write('build COMMA/GLF gf-omdoc\n')
-        self.mmt.stdin.write('server on 8080\n')
+        shell_commands = [
+            'extension %s\n' % (GLF_BUILD_EXTENSION),
+            'extension %s\n' % (GLF_CONSTRUCT_EXTENSION),
+            'build COMMA/GLF gf-omdoc\n',
+            'server on 8080\n'
+        ]
+        for command in shell_commands:
+            self.mmt.stdin.write(command)
         self.mmt.stdin.flush()
     
-    def handle_archive(self, args):
+    def do_shutdown(self):
+        'Shuts down the MMT server and the MMT shell'
+        self.mmt.stdin.write('server off\n')
+        self.mmt.communicate('exit\n')[0]
+        self.mmt.stdin.close()
+        self.mmt.kill()
+    
+    # ----------------------------- Archive handling ----------------------------- #
+
+    def handle_archive(self, command):
         """
             Handles the archive command:
 
             args: list; list of arguments
         """
+        args = get_args(command)
+        if len(args) > 2:
+            return 'archive takes at most 2 arguments!'
         if args[0] == '-c':
             return self.create_archive(args[1])
         else:
-            return self.change_and_build_archive(args[0])
+            name = args[0]
+            if isdir(join(self.content_path,name)):
+                self.archive = name
+                return 'Changed to %s' % (name)
+            else:
+                return '%s is not a valid archive!' % (name)
 
-
-    def change_and_build_archive(self, name):
-        """
-            Checks if the specified archive exists and sets it as current archive.
-            Also builds the archive.
-
-            `name`: str; name of the archive to switch to
-        """
-        if isdir(join(self.content_path,name)):
-            self.archive = name
-            self.build_archive()
-            return "Changed to %s" % (name)
-        else:
-            return "%s is not a valid archive!" % (name)
 
     def create_archive(self, name):
         """
@@ -96,68 +113,73 @@ class MMTInterface():
         #set it as the current archive
         self.archive = name
         return 'Created %s' % (name)
+
+
+    # --------------------------- MMT Content Handling --------------------------- #
+
+    def build_file(self, file_name):
+        """
+            builds gf-omdoc and mmt-omdoc for the current archive and the specified file
+            returns a dict of this form:
+            {
+                isSuccessful: Boolean,
+                errors: []
+            }
+        """
         
+        # register the archive in case it was just created
+        self.mmt.stdin.write('mathpath archive %s\n' % (join(self.content_path, self.archive)))
+        # for some reason MMT archives have to be in upper-case when building them
+        j = {
+            'archive' : self.archive.upper(),
+            'file' : file_name
+        }
+        resp = requests.post('http://localhost:8080/:glf-build', json=j)
+        if resp.status_code == 200:
+            return resp.json()
+        else:
+            return {
+                'isSuccessful' : False,
+                'errors' : ['Communication failed']
+            }
+
     def create_mmt_file(self, content, name, mmt_type):
         """
             Creates a named .mmt file containing either a view or a theory
 
-            `content`: str; content of the view
+            `content`: str; content of file
 
-            `name`: str;  name of the view
+            `name`: str;  name of the file
         
             `mmt_type`: str; type of content, either 'view' or 'theory'
         """
 
-        view_path = join(self.content_path, self.archive, 'source', '%s.mmt' % name)
+        file_name = '%s.mmt' % name
+        file_path = join(self.content_path, self.archive, 'source', file_name)
         try:
-            with open(view_path, 'w') as f:
+            with open(file_path, 'w') as f:
                 f.write('namespace http://mathhub.info/%s ❚\n\n' % self.archive.upper())
                 f.write(content)
                 f.close()
             self.view_name = name
-            self.build_archive()
-            if(mmt_type == 'view'):
-                self.view = name
-            return 'Created %s %s' % (mmt_type, name)
+            build_result = self.build_file(file_name)
+            if build_result['isSuccessful']:
+                if(mmt_type == 'view'):
+                    self.view = name
+                return 'Created %s %s' % (mmt_type, name)
+            else:
+                return '\n'.join(build_result['errors'])
         except OSError:
             return 'Failed to create view %s' % name
 
-    def get_content_path(self):
-        """reads the the path to the MMT-content folder from mmtrc and returns it"""
-        #TODO maybe find a more elegant solution for this
-        try:
-            with open(join(MMT_DEPLOY_LOCATION,'mmtrc'),'r') as f:
-                for _ in range(5):
-                    line = f.readline()
-                _, content_path = line.split(' ', 1)
-                f.close()
-            return content_path[:-1]
-        except OSError:
-            return None
     
-    def build_archive(self):
-        """builds gf-omdoc and mmt-omdoc for the current archive"""
-        # register the archive in case it was just created
-        self.mmt.stdin.write('mathpath archive %s\n' % (join(self.content_path, self.archive)))
-        # for some reason MMT archives have to be in upper-case when building them
-        self.mmt.stdin.write('build %s gf-omdoc\n' % (self.archive.upper()))
-        self.mmt.stdin.write('build %s mmt-omdoc\n' % (self.archive.upper()))
-        self.mmt.stdin.flush()
-    
-    def do_shutdown(self):
-        "Shuts down the MMT server and the MMT shell"
-        self.mmt.stdin.write('server off\n')
-        self.mmt.communicate('exit\n')[0]
-        self.mmt.stdin.close()
-        self.mmt.kill()
-    
-    def handle_request(self, args):
+    def handle_construct(self, command):
         """
-            Sends a request to the MMT GLF server
+            Sends a construct request to the MMT GLF server
 
-            `args`: list; list of arguments
+            `command`: str; the command
         """
-
+        args = get_args(command)
         if(args[0] == '-v'):
             view = args[1]
             self.view = view
@@ -170,12 +192,35 @@ class MMTInterface():
         ASTs = list(map(str.strip, h))
 
         j = {   
-            "semanticsView": "http://mathhub.info/%s/%s" % (self.archive.upper(), view),
-            "ASTs": ASTs
+            'semanticsView': 'http://mathhub.info/%s/%s' % (self.archive.upper(), view),
+            'ASTs': ASTs
         }
         try:
-            resp = requests.post("http://localhost:8080/:glf", json=j)
+            # apparently requests.post().json() returns a list
+            # TODO make this more clear and return a dict like this:
+            # {
+            #     constructedThingys = [bla, blub, ...]
+            # }
+            resp = requests.post('http://localhost:8080/:glf-construct', json=j) 
+            
         except:
-            return "Something went wrong during the request"
+            return 'Something went wrong during the request'
         if resp.status_code == 200:
-            return resp.text
+            return '\n'.join(resp.json())
+
+
+    def get_content_path(self):
+        """reads the the path to the MMT-content folder from mmtrc and returns it"""
+        #TODO maybe find a more elegant solution for this
+        try:
+            with open(join(MMT_LOCATION,'deploy','mmtrc'),'r') as f:
+                # read the 5th line from mmtrc
+                for _ in range(5):
+                    line = f.readline()
+                _, content_path = line.split(' ', 1)
+                f.close()
+            # remove \n
+            return content_path[:-1]
+        except OSError:
+            return None
+

@@ -1,0 +1,9 @@
+{
+    "show" : "show 'graph' : shows the graph in the notebook",
+    "clean" : "clean : remove all .dot, .png and .gfo files from the current directory",
+    "export" : "export 'grammar' : export the grammar to your current directory",
+    "archive" : "archive [-c] 'MMT-archive' : sets 'MMT-archive' as the current archive. The -c option creates the archive if it does not exist yet",
+    "construct" : "construct 'AST' : sends the AST to the MMT GLF-Server extension",
+    "gf" : "To display more information on the GF shell commands use 'h'",
+    "help" : "Available kernel commands:\nshow 'graph' : shows the graph in the notebook\nclean : remove all .dot, .png and .gfo files from the current directory\nexport 'name' : export the grammar 'name' to your current directory\narchive [-c] 'MMT-archive' : sets 'MMT-archive' as the current archive. The -c option creates the archive if it does not exist yet\nconstruct 'AST' : sends the AST to the MMT GLF-Server extension\nTo display more information on the GF shell commands use 'h'\nAll kernel commands are pipeable in a GF-shell like manner using '|', e.g. parse 'Sentence' | vt | view\nYou can use the kernel as an editor for your grammars, views or theories.\nStated grammars are automatically imported upon definiton.\nWhenever a grammar, theory or view is defined the current MMT archive will be built\n"
+}
