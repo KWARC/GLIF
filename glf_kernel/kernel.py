@@ -174,18 +174,17 @@ class GLFKernel(Kernel):
         shortcuts = {}
         with open(os.path.join(charMapPath,'unicode-latex-map'), 'r', encoding='utf-8') as charMap:
             for line in charMap:
-                line = line.replace('j','',1)
                 line = line.replace('\n','',1)
                 st, repl = line.split("|", 1)
                 shortcuts[st] = repl
 
         # use them for tab-completion
         for k,v in shortcuts.items():
-            if code[cursorPos-len(k)-1:cursorPos] == "\\"+k:
+            if code[cursorPos-len(k):cursorPos] == k:
                 return  {
                     'matches' : [v],
                     'cursor_end' : cursorPos,
-                    'cursor_start' : cursorPos-len(k)-1,
+                    'cursor_start' : cursorPos-len(k),
                     'metadata' : {},
                     'status' : 'ok'
                 }
