@@ -30,6 +30,21 @@ commonCommands = GF_commands + kernel_commands + MMT_commands
 
 allKeywords = gfKeywords + gfBuiltins + gfDefiners + commonCommands + mmtDefiners
 
+def check_port(host, port):
+    """checks if the given port is free"""
+    import socket
+    from contextlib import closing
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        if sock.connect_ex((host, port)) == 0:
+            res = True
+        else:
+            res = False
+    return res
+
+def generate_port(h="localhost", start=8080, end=30000):
+    for p in range(start, end):
+        if not check_port(h, p):
+            return p
 
 def parse(code):
     lines = code.split('\n')

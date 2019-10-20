@@ -6,7 +6,7 @@ import requests
 from os.path import join, expanduser, isdir
 from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
-from .utils import get_args
+from .utils import get_args, generate_port
 
 # TODO maybe introduce env variables for this
 MMT_LOCATION = join(expanduser('~'),'MMT')
@@ -35,12 +35,14 @@ class MMTInterface():
         else:
             stdout = PIPE
         self.mmt = Popen(MMT_ARGS,preexec_fn=os.setsid,stdin=PIPE, stdout=stdout, text=True, encoding='utf-8')
+
+        self.mmt_port = generate_port()
         # for some reason the mmt shell terminates(??) when additional arguments are supplied
         shell_commands = [
             'extension %s\n' % (GLF_BUILD_EXTENSION),
             'extension %s\n' % (GLF_CONSTRUCT_EXTENSION),
             'build COMMA/GLF gf-omdoc\n',
-            'server on 8080\n'
+            'server on %s\n' % (self.mmt_port)
         ]
         for command in shell_commands:
             self.mmt.stdin.write(command)
@@ -134,7 +136,7 @@ class MMTInterface():
             'archive' : self.archive.upper(),
             'file' : file_name
         }
-        resp = requests.post('http://localhost:8080/:glf-build', json=j)
+        resp = requests.post('http://localhost:%s/:glf-build' % (self.mmt_port), json=j)
         if resp.status_code == 200:
             return resp.json()
         else:
@@ -201,7 +203,7 @@ class MMTInterface():
             # {
             #     constructedThingys = [bla, blub, ...]
             # }
-            resp = requests.post('http://localhost:8080/:glf-construct', json=j) 
+            resp = requests.post('http://localhost:%s/:glf-construct' % (self.mmt_port), json=j) 
             
         except:
             return 'Something went wrong during the request'
