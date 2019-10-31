@@ -22,6 +22,7 @@ class MMTInterface():
         self.content_path = self.get_content_path()
         # set COMMA/JUPYTER as default archive
         self.archive = 'comma/jupyter'
+        self.subdir = None
         self.view = None
     
         # FIXME what does -w do??
@@ -75,6 +76,27 @@ class MMTInterface():
                 return 'Changed to %s' % (name)
             else:
                 return '%s is not a valid archive!' % (name)
+
+    def create_subdir(self, name):
+        """Creates a new subdirectory in the current archives src folder"""
+        try:
+            subdir_path = join(self.content_path, self.archive, 'source', name)
+            if isdir(subdir_path):
+                self.subdir = name
+                return 'Changed to subdirectory %s' % (name)
+            os.mkdir(subdir_path)
+            self.subdir = name
+            return 'Created subdirectory %s' % (name)
+        except:
+            return 'Creation of subdirectory %s failed! \n' % (name)
+
+    def get_subdir(self):
+        """"Returns the current subdirectory"""
+        return self.subdir
+    
+    def change_subdir(self, new):
+        """Changes to the new subdirectory"""
+        pass
 
 
     def create_archive(self, name):
@@ -134,7 +156,7 @@ class MMTInterface():
         # for some reason MMT archives have to be in upper-case when building them
         j = {
             'archive' : self.archive.upper(),
-            'file' : file_name
+            'file' : os.path.join(self.subdir, file_name)
         }
         resp = requests.post('http://localhost:%s/:glf-build' % (self.mmt_port), json=j)
         if resp.status_code == 200:
@@ -157,7 +179,7 @@ class MMTInterface():
         """
 
         file_name = '%s.mmt' % name
-        file_path = join(self.content_path, self.archive, 'source', file_name)
+        file_path = join(self.content_path, self.archive, 'source', self.subdir, file_name)
         try:
             with open(file_path, 'w') as f:
                 f.write('namespace http://mathhub.info/%s ❚\n\n' % self.archive.upper())

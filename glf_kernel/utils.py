@@ -22,7 +22,7 @@ GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca
                    'r', 'read_file', 'rf', 'rank_trees', 'rt', 'show_dependencies', 'sd', 'set_encoding', 'se', 'show_operations',
                    'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
                    'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
-kernel_commands = ['show', 'clean', 'export', 'help']
+kernel_commands = ['show', 'clean', 'export', 'help', 'subdir']
 MMT_commands = ['archive','construct']
 mmtDefiners = ['theory', 'view']
 mmtDelimiters = ['\u2758','\u2759','\u275A']

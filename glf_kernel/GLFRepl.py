@@ -142,6 +142,12 @@ class GLFRepl:
             return to_message_format(graph=graph)
         elif name == 'clean':
             return self.clean_up()
+        elif name == 'subdir':
+            if args and len(args) == 1:
+                return self.mmtInterface.create_subdir(args[0])
+            elif args and len(args) == 0:
+                return "Current subdirectory: %s" % (self.mmtInterface.get_subdir())
+
         elif name == 'export':
             return self.do_export(args[0])   
         elif name == 'help':
@@ -294,7 +300,8 @@ class GLFRepl:
         """
         
         file_name = "%s.gf" % (name)
-        file_path = os.path.join(self.mmtInterface.content_path, self.mmtInterface.archive, 'source', file_name)
+        mmt_subdir = self.mmtInterface.get_subdir()
+        file_path = os.path.join(self.mmtInterface.content_path, self.mmtInterface.archive, 'source', mmt_subdir, file_name)
         try:
             with open(file_path, 'w') as f:
                 f.write(content)
