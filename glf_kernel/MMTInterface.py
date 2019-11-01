@@ -35,7 +35,7 @@ class MMTInterface():
             stdout = None
         else:
             stdout = PIPE
-        self.mmt = Popen(MMT_ARGS, preexec_fn=os.setsid, stdin=PIPE,
+        self.mmt = Popen(MMT_ARGS, stdin=PIPE,
                          stdout=stdout, text=True, encoding='utf-8')
 
         self.mmt_port = generate_port()
@@ -161,7 +161,7 @@ class MMTInterface():
         file_path = join(self.content_path, self.archive,
                          'source', self.subdir, file_name)
         try:
-            with open(file_path, 'w') as f:
+            with io.open(file_path, 'w', encoding='utf-8',) as f:
                 f.write('namespace http://mathhub.info/%s ❚\n\n' %
                         self.archive.upper())
                 f.write(content)
