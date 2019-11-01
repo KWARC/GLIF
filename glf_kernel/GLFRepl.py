@@ -9,61 +9,43 @@ from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
 from .utils import parse, to_message_format, get_name, get_args, GF_commands
 from .MMTInterface import MMTInterface
+from .GFRepl import GFRepl
 from distutils.spawn import find_executable
+
 
 class GLFRepl:
 
     def __init__(self):
-        GF_BIN = find_executable('gf')
-        GF_ARGS = [
-            GF_BIN,
-            '--run'
-        ]
-
         self.td = TemporaryDirectory()
         self.to_clean_up = ['.dot', '.png', '.gfo']
-        self.out_file_name = os.path.join(self.td.name, 'shell.out')
-        self.out = open(self.out_file_name, 'w+')
-        self.shell = Popen(GF_ARGS, stdin=PIPE,  text=True,
-                           stdout=self.out)
-        self.pid = os.getpid()
+
+        # start the GF Repl
+        self.gfRepl = GFRepl()
         self.out_count = 0
 
         # initialize the MMT interface
         self.mmtInterface = MMTInterface()
 
-        # register the signal handler for the notify process
-        signal.signal(signal.SIGUSR1, self.signal_handler)
-    
+        # content handlers
         self.handlers = {
-            'MMT_command' : self.handle_mmt_command,
-            'GF_command' : self.handle_gf_command,
-            'kernel_command' : self.handle_kernel_command
+            'MMT_command': self.handle_mmt_command,
+            'GF_command': self.gfRepl.handle_gf_command,
+            'kernel_command': self.handle_kernel_command
         }
 
         # load help messages from messages.json file
-        messages_path = os.path.dirname(os.path.realpath(__file__))     
+        messages_path = os.path.dirname(os.path.realpath(__file__))
         try:
-            with open(os.path.join(messages_path,'messages.json')) as f:
+            with open(os.path.join(messages_path, 'messages.json')) as f:
                 self.messages = load(f)
         except:
             self.messages = None
 
-
     def do_shutdown(self):
         """Terminates the GF shell and the MMT subprocess"""
-        # terminate gf shell
         self.td.cleanup()
-        self.shell.communicate('q\n')[0]
-        self.shell.stdin.close()
-        self.shell.kill()
-
-        # terminate mmt
+        self.gfRepl.do_shutdown()
         self.mmtInterface.do_shutdown()
-
-    def signal_handler(self, signum, frame):
-        """Signal handler for the notify process"""
-        pass
 
     # ---------------------------------------------------------------------------- #
     #                           General Content Handling                           #
@@ -73,7 +55,7 @@ class GLFRepl:
         """
             Parses the `code` from the notebook and delegates 
             command handling to the respective handlers
-        
+
             `code`: str; the user input from the notebook
         """
         messages = []
@@ -87,9 +69,10 @@ class GLFRepl:
                         pipe_command_type = pipe_command['type']
                         pipe_command_str = pipe_command['command']
                         if pipe_commands.index(pipe_command) == 0:
-                            res = self.handlers[pipe_command_type](pipe_command_str)
+                            res = self.handlers[pipe_command_type](
+                                pipe_command_str)
                             name = get_name(pipe_command_str)
-                            
+
                             lines = res.split('\n')
                             trees = []
                             for line in lines:
@@ -101,10 +84,11 @@ class GLFRepl:
                             # in case the output contains multiple lines
                             new_pipe_res = []
                             for res in pipe_res:
-                                    new_res = self.handlers[pipe_command_type]('%s %s' % (pipe_command_str, res))
-                                    new_pipe_res.append(new_res)
+                                new_res = self.handlers[pipe_command_type](
+                                    '%s %s' % (pipe_command_str, res))
+                                new_pipe_res.append(new_res)
                             pipe_res = new_pipe_res
-                    
+
                     messages.append(to_message_format(trees=trees))
 
                     for res in pipe_res:
@@ -124,7 +108,7 @@ class GLFRepl:
                 message="Input is neither valid GF or MMT content nor a valid shell command!"))
 
         return messages
-    
+
     # ---------------------------------------------------------------------------- #
     #                                Kernel Commands                               #
     # ---------------------------------------------------------------------------- #
@@ -137,26 +121,24 @@ class GLFRepl:
         """
         name = get_name(command)
         args = get_args(command)
+
         if name == 'show':
             graph = ' '.join(args)
             return to_message_format(graph=graph)
+
         elif name == 'clean':
             return self.clean_up()
-        elif name == 'subdir':
-            if args and len(args) == 1:
-                return self.mmtInterface.create_subdir(args[0])
-            elif args and len(args) == 0:
-                return "Current subdirectory: %s" % (self.mmtInterface.get_subdir())
 
         elif name == 'export':
-            return self.do_export(args[0])   
+            return self.do_export(args[0])
+
         elif name == 'help':
             if not self.messages:
                 return "No help available"
             if args:
                 name = args[0]
                 if name in GF_commands:
-                    return self.handle_gf_command('h %s' % (name))
+                    return self.gfRepl.handle_gf_command('h %s' % (name))
                 if name in self.messages.keys():
                     return self.messages[name]
                 else:
@@ -164,10 +146,10 @@ class GLFRepl:
             else:
                 return self.messages['help']
 
-
     def convert_to_png(self, graph):
         """
-            Converts the given `graph` into a png and the file name of the picture
+            Converts the given `graph` into a png
+            Returns the file name of the picture
 
             `graph`: str
         """
@@ -189,7 +171,6 @@ class GLFRepl:
 
         return out_png
 
-
     def clean_up(self):
         """Removes all files whose extensions are contained in `self.to_clean_up`"""
         removed = []
@@ -206,7 +187,6 @@ class GLFRepl:
         else:
             return "No files removed"
 
-
     def do_export(self, file_name):
         """
             Handles an export command
@@ -217,7 +197,8 @@ class GLFRepl:
         args = get_args(file_name)
         if len(args) > 1:
             return "export only takes one argument!"
-        source_path = os.path.join(self.mmtInterface.content_path, self.mmtInterface.archive, 'source')
+        source_path = os.path.join(
+            self.mmtInterface.content_path, self.mmtInterface.archive, 'source')
         files = os.listdir(source_path)
         file_reg = re.compile('^%s.gf$' % (file_name))
         for file in files:
@@ -233,58 +214,36 @@ class GLFRepl:
 
     def handle_mmt_command(self, command):
         """
-            Handles the MMT-Commands 'archive' and 'construct'
+            Handles the MMT-Commands 'archive', 'construct' and 'subdir'
 
             'command': str; the command
         """
         name = get_name(command)
+        args = get_args(command)
         if name == 'archive':
-            return self.mmtInterface.handle_archive(command)
+            if not args:
+                return 'Current archive: %s'% (self.mmtInterface.get_archive())
+            if len(args) > 1:
+                return 'archive takes only one argument!'
+            return self.mmtInterface.handle_archive(args[0])
+
         elif name == 'construct':
-            return self.mmtInterface.handle_construct(command)
+            view = None
+            if(args[0] == '-v'):
+                view = args[1]
+                ASTsStr = ' '.join(args[2:])
+            else:
+                ASTsStr = ' '.join(args)
 
-    # ---------------------------------------------------------------------------- #
-    #                                  GF Commands                                 #
-    # ---------------------------------------------------------------------------- #
-    
-    def handle_gf_command(self, command):
-        """
-            Sends the `command` to the GF shell
+            h = ASTsStr.split('|')
+            ASTs = list(map(str.strip, h))
+            return self.mmtInterface.construct(ASTs, view)
 
-            `command`: str; the command
-        """
-        # print('----------------------------------------------------------------------')
-        # print(repr(command))
-
-        if self.out.closed:
-            self.out = open(self.out_file_name, 'w')
-        # send the command
-        if command[-1] != '\n':
-            command = command+'\n'
-        self.shell.stdin.write(command)
-        # start the notify process
-        cmd = 'sp -command="python %s/notify.py %s"\n' % (os.path.dirname(os.path.abspath(__file__)), self.pid)
-        self.shell.stdin.write(cmd)
-        self.shell.stdin.flush() #TODO FIX THIS ON THE NORMAL GF KERNEL
-        # wait for the notify process
-        signal.pause()
-        # some shell commands (mostly the ones that are dealing with files) are asynchronous from the shells execution,
-        # like e.g. searching a file to include. This means the notify process can report back even though the shell
-        # hasn't actually written its output to the output file yet. Hence we need to wait a little here to be sure the output is there.
-        time.sleep(0.01)
-        out = ''
-        with open(self.out_file_name, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                if line != '' and line != ' ' and line != '\n' and line:
-                    out += line
-        self.out.truncate(0)
-        self.out.seek(0)
-        if get_name(command) == 'import' and not out:
-            return 'Import successful!'
-        else:
-            return out
-
+        elif name == 'subdir':
+            if args and len(args) == 1:
+                return self.mmtInterface.create_subdir(args[0])
+            elif not args:
+                return 'Current subdirectory: %s' % (self.mmtInterface.get_subdir())
 
     # ---------------------------------------------------------------------------- #
     #                               GF Content                               #
@@ -292,24 +251,26 @@ class GLFRepl:
 
     def handle_grammar(self, content, name):
         """
-            Handles a grammar input
+            Handles grammar input
 
-            ``content``: str; the content of the grammar
-
-            ``name``: str; the name of the grammar
+            `content`: str; the content of the grammar
+            `name`: str; the name of the grammar
         """
-        
+
         file_name = "%s.gf" % (name)
         mmt_subdir = self.mmtInterface.get_subdir()
-        file_path = os.path.join(self.mmtInterface.content_path, self.mmtInterface.archive, 'source', mmt_subdir, file_name)
+        mmt_content = self.mmtInterface.get_content()
+        mmt_archive = self.mmtInterface.get_archive()
+        file_path = os.path.join(
+            mmt_content, mmt_archive, 'source', mmt_subdir, file_name)
         try:
             with open(file_path, 'w') as f:
                 f.write(content)
                 f.close()
         except OSError:
             return 'Failed to create grammar %s' % (name)
-        out = self.handle_gf_command("import %s" % (file_path))
-        if out == 'Import successful!':
+        out = self.gfRepl.handle_gf_command("import %s" % (file_path))
+        if out == 'success':
             # build the Grammar with the GlfBuild extension
             build_result = self.mmtInterface.build_file(file_name)
             if build_result['isSuccessful']:
@@ -317,4 +278,3 @@ class GLFRepl:
             else:
                 return '\n'.join(build_result['errors'])
         return out
-

@@ -10,25 +10,27 @@ def to_display_data(message, mimetype='text/plain'):
 
 
 gfKeywords = ['flags', 'startcat', 'cat', 'fun', 'of', 'lin', 'lincat', 'with',
-                  'open', 'in', 'param', 'linref', 'table', 'let', 'case', 'overload']
+              'open', 'in', 'param', 'linref', 'table', 'let', 'case', 'overload']
 gfBuiltins = ['Str']
 gfDefiners = ['abstract', 'concrete', 'resource',
-                  'incomplete', 'instance', 'interface']
+              'incomplete', 'instance', 'interface']
 GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca', 'compute_conctete', 'cc',
-                   'define_command', 'dc', 'depencency_graph', 'dg', 'define_tree', 'dt', 'empty', 'e', 'example_based', 'eb',
-                   'execute_history', 'eh', 'generate_random', 'gr', 'generate_trees', 'gt', 'h', 'import', 'i',
-                   'linearize', 'l', 'linearize_chunks', 'lc', 'morpho_analyse', 'ma', 'morpho_quiz', 'mq', 'parse', 'p',
-                   'print_grammar', 'pg', 'print_history', 'ph', 'put_string', 'ps', 'put_tree', 'pt', 'quit', 'q', 'reload',
-                   'r', 'read_file', 'rf', 'rank_trees', 'rt', 'show_dependencies', 'sd', 'set_encoding', 'se', 'show_operations',
-                   'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
-                   'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
-kernel_commands = ['show', 'clean', 'export', 'help', 'subdir']
-MMT_commands = ['archive','construct']
+               'define_command', 'dc', 'depencency_graph', 'dg', 'define_tree', 'dt', 'empty', 'e', 'example_based', 'eb',
+               'execute_history', 'eh', 'generate_random', 'gr', 'generate_trees', 'gt', 'h', 'import', 'i',
+               'linearize', 'l', 'linearize_chunks', 'lc', 'morpho_analyse', 'ma', 'morpho_quiz', 'mq', 'parse', 'p',
+               'print_grammar', 'pg', 'print_history', 'ph', 'put_string', 'ps', 'put_tree', 'pt', 'quit', 'q', 'reload',
+               'r', 'read_file', 'rf', 'rank_trees', 'rt', 'show_dependencies', 'sd', 'set_encoding', 'se', 'show_operations',
+               'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
+               'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
+kernel_commands = ['show', 'clean', 'export', 'help']
+MMT_commands = ['archive', 'construct', 'subdir']
 mmtDefiners = ['theory', 'view']
-mmtDelimiters = ['\u2758','\u2759','\u275A']
+mmtDelimiters = ['\u2758', '\u2759', '\u275A']
 commonCommands = GF_commands + kernel_commands + MMT_commands
 
-allKeywords = gfKeywords + gfBuiltins + gfDefiners + commonCommands + mmtDefiners
+allKeywords = gfKeywords + gfBuiltins + \
+    gfDefiners + commonCommands + mmtDefiners
+
 
 def check_port(host, port):
     """checks if the given port is free"""
@@ -41,10 +43,12 @@ def check_port(host, port):
             res = False
     return res
 
+
 def generate_port(h="localhost", start=8080, end=30000):
     for p in range(start, end):
         if not check_port(h, p):
             return p
+
 
 def parse(code):
     lines = code.split('\n')
@@ -116,9 +120,11 @@ def get_command_type(command):
     else:
         return None
 
+
 def get_name(command):
     """returns the name of the command"""
     return command.split(' ')[0]
+
 
 def get_args(command):
     """returns the arguments of the command or None if none exist"""
@@ -128,20 +134,34 @@ def get_args(command):
         return None
 
 
-
-
 def contains(string, set):
     """checks if the given string contains any characters from set"""
     return True in [char in string for char in set]
 
+
 def to_message_format(message=None, graph=None, trees=None):
     return {
         'message': message,
-        'graph' : graph,
-        'trees' : trees
+        'graph': graph,
+        'trees': trees
     }
 
 
+def create_nested_dir(cwd, new_dir):
+    import os
+    """
+        Creates a nested directory from cwd
+
+        cwd: absolute path to the current directory
+        new_dir: the name of the new directory
+    """
+    cwd_path = cwd
+    subdirs = new_dir.split(os.path.sep)
+    for d in subdirs:
+        cwd_path = os.path.join(cwd_path, d)
+        if os.path.isdir(cwd_path):
+            continue
+        os.mkdir(cwd_path)
 
 
 def get_current_word(code, cursorPos):
@@ -165,4 +185,3 @@ def get_matches(last_word):
         if regex.match(word):
             matches.append(word)
     return matches
-
