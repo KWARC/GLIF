@@ -2,6 +2,7 @@ import os
 
 from .utils import to_display_data, get_current_word, get_matches
 from .GLFRepl import GLFRepl
+from .convert import generateMMT
 
 from urllib.parse import quote
 
@@ -107,6 +108,7 @@ class GLFKernel(Kernel):
 
     def do_execute(self, code, silent=False, store_history=True, user_expressions=None, allow_stdin=True):
         """Called when the user inputs code"""
+        self.shell.get_ipython().set_next_input("Hi")
         messages = self.GFRepl.handle_input(code)
         graphs = []
         trees = []
@@ -175,6 +177,18 @@ class GLFKernel(Kernel):
                 line = line.replace('\n','',1)
                 st, repl = line.split("|", 1)
                 shortcuts[st] = repl
+
+        grammars = self.GFRepl.get_grammars()
+        for grammar, path in grammars.items():
+            if code[cursorPos-len(grammar):cursorPos] == grammar:
+                view = generateMMT(path)
+                return  {
+                    'matches' : [view],
+                    'cursor_end' : cursorPos,
+                    'cursor_start' : cursorPos-len(grammar),
+                    'metadata' : {},
+                    'status' : 'ok'
+                }
 
         # use them for tab-completion
         for k,v in shortcuts.items():

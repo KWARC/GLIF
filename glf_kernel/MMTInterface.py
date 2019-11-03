@@ -20,7 +20,7 @@ LOG_TO_CONSOLE = False
 class MMTInterface():
 
     def __init__(self):
-        self.content_path = get_content_path()
+        self.content_path = do_get_content_path()
         # set COMMA/JUPYTER as default archive
         self.archive = 'comma/jupyter'
         self.subdir = ''
@@ -57,8 +57,14 @@ class MMTInterface():
         self.mmt.stdin.close()
         self.mmt.kill()
     
-    def get_content(self):
+    def get_content_path(self):
         return self.content_path
+    
+    def get_archive_path(self):
+        return join(self.content_path, self.archive)
+
+    def get_cwd(self):
+        return join(self.content_path, self.archive, 'source', self.subdir)
     
 
     # ----------------------------- Archive handling ----------------------------- #
@@ -89,9 +95,6 @@ class MMTInterface():
 
         except OSError:
             return('Creation of %s failed! \n%s' % (name, archive_path))
-    
-    def get_archive(self):
-        return self.archive
 
     # --------------------------- Subdirectory handling -------------------------- #
 
@@ -205,7 +208,7 @@ class MMTInterface():
             return '\n'.join(resp.json())
 
 
-def get_content_path():
+def do_get_content_path():
     """reads the the path to the MMT-content folder from mmtrc and returns it"""
     # TODO maybe find a more elegant solution for this
     try:

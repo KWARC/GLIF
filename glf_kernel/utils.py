@@ -185,3 +185,65 @@ def get_matches(last_word):
         if regex.match(word):
             matches.append(word)
     return matches
+
+
+
+# original code from https://stackoverflow.com/a/36253753
+def tree(dir, padding='', print_files=True, isLast=False, isFirst=True, displayFullPath = True):
+    from os import listdir, sep
+    from os.path import abspath, basename, isdir, splitext
+    from sys import argv
+    from IPython.display import display
+    from ipywidgets import widgets
+
+    show_ext = ['.gf']
+    hide_dir = ['content','META-INF','narration','relational','content']
+
+    if isFirst:
+        if displayFullPath:
+            print(padding[:-1]+ dir)
+        else:
+            print(padding[:-1]+ basename(abspath(dir)))
+    else:
+        if isLast:
+            print(padding[:-1] + '└── ' + basename(abspath(dir)))
+        else:
+            print(padding[:-1] + '├── ' + basename(abspath(dir)))
+    files = []
+    if print_files:
+        all_files = listdir(dir)
+        files = []
+        for file in all_files:
+            path = dir + sep + file
+            if isdir(path):
+                if file not in hide_dir:
+                    files.append(file)
+                continue
+            else:
+                _, ext = splitext(file)
+                if ext in show_ext:
+                    files.append(file)
+    else:
+        files = [x for x in listdir(dir) if isdir(dir + sep + x) and x not in hide_dir]
+    if not isFirst:
+        padding = padding + '   '
+    files = sorted(files, key=lambda s: s.lower())
+    count = 0
+    last = len(files) - 1
+    for i, file in enumerate(files):  
+        count += 1
+        path = dir + sep + file
+        isLast = i == last
+        if isdir(path):
+            if count == len(files):
+                if isFirst:
+                    tree(path, padding, print_files, isLast, False)
+                else:
+                    tree(path, padding + ' ', print_files, isLast, False)
+            else:
+                tree(path, padding + '│', print_files, isLast, False)
+        else:
+            if isLast:
+                print(padding + '└── ' + file)
+            else:
+                print(padding + '├── ' + file)

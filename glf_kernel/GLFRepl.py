@@ -7,7 +7,7 @@ import re
 from json import load
 from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
-from .utils import parse, to_message_format, get_name, get_args, GF_commands
+from .utils import parse, to_message_format, get_name, get_args, GF_commands, tree
 from .MMTInterface import MMTInterface
 from .GFRepl import GFRepl
 from distutils.spawn import find_executable
@@ -16,15 +16,16 @@ from distutils.spawn import find_executable
 class GLFRepl:
 
     def __init__(self):
+        # initialize the MMT interface
+        self.mmtInterface = MMTInterface()
+
         self.td = TemporaryDirectory()
         self.to_clean_up = ['.dot', '.png', '.gfo']
 
         # start the GF Repl
         self.gfRepl = GFRepl()
         self.out_count = 0
-
-        # initialize the MMT interface
-        self.mmtInterface = MMTInterface()
+        self.grammars = self.search_grammars()
 
         # content handlers
         self.handlers = {
@@ -222,7 +223,8 @@ class GLFRepl:
         args = get_args(command)
         if name == 'archive':
             if not args:
-                return 'Current archive: %s'% (self.mmtInterface.get_archive())
+                tree(self.mmtInterface.get_archive_path())
+                return ''
             if len(args) > 1:
                 return 'archive takes only one argument!'
             return self.mmtInterface.handle_archive(args[0])
@@ -243,7 +245,8 @@ class GLFRepl:
             if args and len(args) == 1:
                 return self.mmtInterface.create_subdir(args[0])
             elif not args:
-                return 'Current subdirectory: %s' % (self.mmtInterface.get_subdir())
+                tree(self.mmtInterface.get_cwd(),isFirst=True, displayFullPath=False)
+                return ''
 
     # ---------------------------------------------------------------------------- #
     #                               GF Content                               #
@@ -258,11 +261,7 @@ class GLFRepl:
         """
 
         file_name = "%s.gf" % (name)
-        mmt_subdir = self.mmtInterface.get_subdir()
-        mmt_content = self.mmtInterface.get_content()
-        mmt_archive = self.mmtInterface.get_archive()
-        file_path = os.path.join(
-            mmt_content, mmt_archive, 'source', mmt_subdir, file_name)
+        file_path = os.path.join(self.mmtInterface.get_cwd(), file_name)
         try:
             with open(file_path, 'w') as f:
                 f.write(content)
@@ -271,10 +270,23 @@ class GLFRepl:
             return 'Failed to create grammar %s' % (name)
         out = self.gfRepl.handle_gf_command("import %s" % (file_path))
         if out == 'success':
-            # build the Grammar with the GlfBuild extension
-            build_result = self.mmtInterface.build_file(file_name)
+            build_result = self.mmtInterface.build_file(file_name) # build the Grammar with the GlfBuild extension
             if build_result['isSuccessful']:
+                self.grammars[name] = file_path
                 return "Defined %s" % (name)
             else:
                 return '\n'.join(build_result['errors'])
         return out
+
+    def search_grammars(self):
+        grammars = {}
+        cwd = self.mmtInterface.get_cwd()
+        for file in os.listdir(cwd):
+            if file.endswith(".gf"):
+                path = os.path.join(cwd, file)
+                name = os.path.splitext(file)
+                grammars[name] = path
+        return grammars
+    
+    def get_grammars(self):
+        return self.grammars
