@@ -1,15 +1,41 @@
-GF Kernel
-===========
+GLF Kernel
+==========
 
-`glf_kernel` is a [GF](https://www.grammaticalframework.org/) kernel for [Jupyter](https://jupyter.org/), which is extended by functionalities provided by [MMT](https://uniformal.github.io/).
+`glf_kernel` is a kernel for [Jupyter](https://jupyter.org/) that combines functionalities of [GF](https://www.grammaticalframework.org/) and [MMT](https://uniformal.github.io/).
+It is based on the [GF Kernel](https://github.com/kwarc/gf_kernel), which only supports GF.
+
+GLF is intended as a framework for natural language understanding (NLU) experiments.
+GF can be used to quickly write grammars for natural language fragments.
+MMT can be used to describe a logic and the translation from GF's parse trees into that logic, which is called semantics construction.
+This way, the GLF kernel can be used to quickly implement the entire pipeline from natural language strings to a logical expression.
+
+If you want to read more about GLF, you may be interested in [this](https://kwarc.info/people/mkohlhase/submit/lfmtp-19.pdf) paper.
+
 
 Prerequisites
 -------------
 
+
+#### Python
+
 This package requires Python 3 (or newer) and this README assumes that this is the default python version. 
 If in doubt, use `python3` instead of `python` and `python3 -m pip` instead of `pip`. 
 
+Additionally, `setuptools` is required to install this package. 
+This likely came with your Python distribution, but in case it did not use `pip install setuptools` to install it.  
+
+#### GF
+
 If you haven't installed GF already, get it from the official [download website](https://www.grammaticalframework.org/download/index.html).
+
+#### MMT
+
+You can find installation instructions for MMT [here](https://uniformal.github.io//doc/setup/).
+Please note that as of now (November 2019), GLF uses some not-yet released features of MMT.
+So you will have to either talk to us (probably the best idea) or try building MMT yourself from the `devel` branch of the git repository.
+If you only want to use MMT for the `glf_kernel`, you don't have to install an MMT development IDE (in a way, the notebooks will be your IDE).
+
+#### Optional: Graphviz
 
 For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please make sure you have it installed:
     
@@ -19,8 +45,6 @@ or under Mac OS X with [homebrew](https://brew.sh):
 
     brew install graphviz
 
-Additionally, `setuptools` is required to install this package. 
-This likely came with your Python distribution, but in case it did not use `pip install setuptools` to install it.  
 
 Installation
 ------------
@@ -73,7 +97,7 @@ It also supports MMT specific functionalities like:
 - `archive`: creates the specified archive. If it already exists this archive will be set as the working archive. If no arguments are supplied this will display the current working archive. Also also allows creation of nested archives. (e.g. `archive comma/jupyter`)
 - `subdir`: used to create or switch subfolders in the current working archives source folder. It is used just like the `archive` command.
 - `construct`: sends a construct request to MMT and displays the result.
-- You can use the kernel to define new theories or views just like you would do with grammars. For this the kernel also supports <kbd>Tab<kbd> completion of some Unicode characters. (e.g. \rightarrow + <kbd>Tab<kbd> will give you →. \MD + <kbd>Tab<kbd>, \OD + <kbd>Tab<kbd> and \DD + <kbd>Tab<kbd> will give you module, object and declaration delimiters respectively).
+- You can use the kernel to define new theories or views just like you would do with grammars. For this the kernel also supports <kbd>Tab</kbd> completion of some Unicode characters. (e.g. \rightarrow + <kbd>Tab</kbd> will give you →. \MD + <kbd>Tab</kbd>, \OD + <kbd>Tab</kbd> and \DD + <kbd>Tab</kbd> will give you module, object and declaration delimiters respectively).
 
 
 
