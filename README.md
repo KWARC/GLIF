@@ -37,13 +37,32 @@ If you only want to use MMT for the `glf_kernel`, you don't have to install an M
 
 #### Optional: Graphviz
 
-For graph visualization GF uses [graphviz](http://www.graphviz.org/), so please make sure you have it installed:
+For graph visualization GF uses [Graphviz](http://www.graphviz.org/). Under Ubuntu etc. you can install it with
     
     sudo apt install graphviz
 
 or under Mac OS X with [homebrew](https://brew.sh):
 
     brew install graphviz
+
+
+Remarks for Windows Users
+-------------------------
+
+The `glf_kernel` has been succesfully installed on Windows as well.
+There are two ways you can go about it, and it is not clear which one is better/easier/more likely to work:
+
+#### Using the Windows Subsystem for Linux (WSL)
+
+In this case you can basically follow the installation instructions for linux.
+Since Jupyter simply runs a server you can use your notebooks from a browser that
+is not part of the WSL.
+[These](https://medium.com/@sayanghosh_49221/jupyter-notebook-in-windows-subsystem-for-linux-wsl-f075f7ec8691)
+remarks on Jupyter notebooks in WSL may be helpful.
+
+#### Installing it directly in Windows
+
+In this case you have to add GF and Graphviz (in particular `dot`) to the PATH variable.
 
 
 Installation
