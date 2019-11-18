@@ -8,8 +8,8 @@ from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
 from .utils import get_args, generate_port, create_nested_dir
 
-# TODO maybe introduce env variables for this or get Florian to introduce a MMT-Path
-MMT_LOCATION = join(expanduser('~'), 'MMT')
+# TODO maybe get Florian to introduce a MMT-Path
+MMT_LOCATION = os.getenv('MMT_PATH', default=join(expanduser('~'), 'MMT'))
 GLF_BUILD_EXTENSION = 'info.kwarc.mmt.glf.GlfBuildServer'
 GLF_CONSTRUCT_EXTENSION = 'info.kwarc.mmt.glf.GlfConstructServer'
 
