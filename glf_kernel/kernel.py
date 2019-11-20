@@ -2,7 +2,7 @@ import os
 
 from .utils import to_display_data, get_current_word, get_matches
 from .GLFRepl import GLFRepl
-from .convert import generateMMT
+from .convert import generateMMT, generateConcrete
 
 from urllib.parse import quote
 
@@ -179,13 +179,28 @@ class GLFKernel(Kernel):
                 shortcuts[st] = repl
 
         grammars = self.GFRepl.get_grammars()
+
+        # Find out the word currently under the cursor (e.g. MyGrammarSemantics)
+        currentWord = ""
+        cp = cursorPos - 1
+        while cp >= 0 and code[cp].isalnum() or code[cp] == "_":
+            currentWord = code[cp] + currentWord
+            cp -= 1
         for grammar, path in grammars.items():
-            if code[cursorPos-len(grammar):cursorPos] == grammar:
-                view = generateMMT(path)
+            if currentWord.startswith(grammar[0]):
+                suffix = currentWord[len(grammar[0]):]
+                if suffix == "Semantics":
+                    source = "http://mathhub.info/" + self.GFRepl.mmtInterface.archive
+                    if self.GFRepl.mmtInterface.subdir:
+                        source += "/" + self.GFRepl.mmtInterface.subdir
+                    source += "/" + grammar[0] + ".gf?" + grammar[0]
+                    replacement = generateMMT(path, source)
+                else:
+                    replacement = generateConcrete(path, lang=suffix)
                 return  {
-                    'matches' : [view],
+                    'matches' : [replacement],
                     'cursor_end' : cursorPos,
-                    'cursor_start' : cursorPos-len(grammar),
+                    'cursor_start' : cursorPos-len(currentWord),
                     'metadata' : {},
                     'status' : 'ok'
                 }

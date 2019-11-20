@@ -75,6 +75,11 @@ def process_tokens(tokens):
         elif tokens[pos][0] == "fun":
             catfun = "fun"
             pos += 1
+        elif catfun == "skip":
+            pos += 1
+            continue
+        elif tokens[pos][0] in ["flags"]:
+            catfun = "skip"
         elif tokens[pos][1] == "op":
             raise Exception(f"Line {tokens[pos][2]}: Unexpected token: '{tokens[pos][0]}'")
         else:
@@ -100,7 +105,7 @@ def process_tokens(tokens):
         raise Exception(f"Line {tokens[pos][2]}: Didn't expect any more tokens")
     return (name, imports, cats, funs)
 
-def generateMMT(file):
+def generateMMT(file, source = None):
     with open(file) as fp:
         args = process_tokens(tokenizer(fp.read()))
         
@@ -112,18 +117,48 @@ def generateMMT(file):
 
     result = ""
 
+    if not source:
+        source = "?" + name
+
     # semantics construction stub:
-    result += "view " + name + "Semantics : ?" + name + " -> " + blank + " =\n"
+    result += "view " + name + "Semantics : " + source + " -> " + blank + " =\n"
     for import_ in imports:
         result += "    include ?" + import_ + "Semantics " + jDD + "\n"
-    if imports and cats: print()
+    if imports and cats: result += "\n"
     for cat in cats:
         result += "    " + cat + " = " + blank + " " + jDD + "\n"
     if (imports or cats) and funs: result += "\n"
     for fun in funs:
+        result += "    // " + fun[0] + " : " + " ⟶ ".join(fun[1]) + " " + jDD + "\n"
         result += "    " + fun[0] + " = " + blank + " " + jDD + "\n"
     result += jMD + "\n"
     return result
 
+def generateConcrete(file, lang):
+    with open(file) as fp:
+        args = process_tokens(tokenizer(fp.read()))
+        
+    name, imports, cats, funs = args
+    blank = "_"
 
+    result = ""
+
+    # semantics construction stub:
+    result += "concrete " + name + lang + " of " + name + " = "
+    if imports:
+        result += ", ".join(imports) + " ** "
+    result += "{\n"
+    if imports and cats: print()
+    if cats:
+        result += "  lincat\n"
+    for cat in cats:
+        result += "    " + cat + " = " + blank + " ;\n"
+    if cats and funs: result += "\n"
+    if funs:
+        result += "  lin\n"
+    for fun in funs:
+        result += "    -- " + fun[0] + " : " + " -> ".join(fun[1]) + " " + "\n"
+        result += "    " + fun[0] + " " + (blank + " ") * (len(fun[1])-1) + " = " + blank + " ;\n"
+    result += "}\n"
+    return result
 
