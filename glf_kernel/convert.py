@@ -157,8 +157,8 @@ def generateConcrete(file, lang):
     if funs:
         result += "  lin\n"
     for fun in funs:
-        result += "    -- " + fun[0] + " : " + " -> ".join(fun[1]) + " " + "\n"
-        result += "    " + fun[0] + " " + (blank + " ") * (len(fun[1])-1) + " = " + blank + " ;\n"
+        result += "    -- " + fun[0] + " : " + " -> ".join(fun[1]) + "\n"
+        result += "    " + fun[0] + " " + (blank + " ") * (len(fun[1])-1) + "= " + blank + " ;\n"
     result += "}\n"
     return result
 
