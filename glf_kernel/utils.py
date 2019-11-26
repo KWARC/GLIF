@@ -23,7 +23,7 @@ GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca
                'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
                'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'view_tree', 'vt', 'write_file', 'wf']
 kernel_commands = ['show', 'clean', 'export', 'help']
-MMT_commands = ['archive', 'construct', 'subdir']
+MMT_commands = ['archive', 'archives', 'construct', 'subdir']
 mmtDefiners = ['theory', 'view']
 mmtDelimiters = ['\u2758', '\u2759', '\u275A']
 commonCommands = GF_commands + kernel_commands + MMT_commands
@@ -45,9 +45,11 @@ def check_port(host, port):
 
 
 def generate_port(h="localhost", start=8080, end=30000):
+    import time
     for p in range(start, end):
         if not check_port(h, p):
             return p
+        time.sleep(1)
 
 
 def parse(code):
@@ -152,8 +154,10 @@ def create_nested_dir(cwd, new_dir):
     """
         Creates a nested directory from cwd
 
-        cwd: absolute path to the current directory
-        new_dir: the name of the new directory
+        `cwd`: absolute path to the current directory
+        `new_dir`: the name of the new directory
+
+        returns the path to the new directory
     """
     cwd_path = cwd
     subdirs = new_dir.split(os.path.sep)
@@ -162,6 +166,7 @@ def create_nested_dir(cwd, new_dir):
         if os.path.isdir(cwd_path):
             continue
         os.mkdir(cwd_path)
+    return cwd_path
 
 
 def get_current_word(code, cursorPos):
@@ -189,7 +194,8 @@ def get_matches(last_word):
 
 
 # original code from https://stackoverflow.com/a/36253753
-def tree(dir, padding='', print_files=True, isLast=False, isFirst=True, displayFullPath = True):
+def tree(dir, padding='', print_files=True, isLast=False, isFirst=True, displayFullPath=False, archive_name=None):
+    # TODO make this into a sring so output order doesn't get screwed
     from os import listdir, sep
     from os.path import abspath, basename, isdir, splitext
     from sys import argv
@@ -203,7 +209,7 @@ def tree(dir, padding='', print_files=True, isLast=False, isFirst=True, displayF
         if displayFullPath:
             print(padding[:-1]+ dir)
         else:
-            print(padding[:-1]+ basename(abspath(dir)))
+            print(padding[:-1]+ archive_name)
     else:
         if isLast:
             print(padding[:-1] + '└── ' + basename(abspath(dir)))

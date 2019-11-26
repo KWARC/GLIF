@@ -73,9 +73,12 @@ class GLFRepl:
                             res = self.handlers[pipe_command_type](
                                 pipe_command_str)
                             name = get_name(pipe_command_str)
-
-                            lines = res.split('\n')
                             trees = []
+                            try: # TODO make this produce a meaningful error message
+                                lines = res.split('\n')
+                            except:
+                                continue
+                           
                             for line in lines:
                                 if line != '' and line != ' ' and line != '\n':
                                     if name == 'parse':
@@ -223,11 +226,15 @@ class GLFRepl:
         args = get_args(command)
         if name == 'archive':
             if not args:
-                tree(self.mmtInterface.get_archive_path())
+                # TODO make this into a sring so output order doesn't get screwed
+                tree(dir=self.mmtInterface.get_archive_path(), archive_name=self.mmtInterface.get_archive())
                 return ''
             if len(args) > 1:
                 return 'archive takes only one argument!'
             return self.mmtInterface.handle_archive(args[0])
+        
+        if name == 'archives':
+            return ', '.join(self.mmtInterface.get_archives())
 
         elif name == 'construct':
             view = None
@@ -245,11 +252,10 @@ class GLFRepl:
             if args and len(args) == 1:
                 return self.mmtInterface.create_subdir(args[0])
             elif not args:
-                tree(self.mmtInterface.get_cwd(),isFirst=True, displayFullPath=False)
-                return ''
+                return os.path.basename(self.mmtInterface.get_cwd())
 
     # ---------------------------------------------------------------------------- #
-    #                               GF Content                               #
+    #                               GF Content                                     #
     # ---------------------------------------------------------------------------- #
 
     def handle_grammar(self, content, name):
