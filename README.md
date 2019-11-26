@@ -11,6 +11,8 @@ This way, the GLF kernel can be used to quickly implement the entire pipeline fr
 
 If you want to read more about GLF, you may be interested in [this](https://kwarc.info/people/mkohlhase/submit/lfmtp-19.pdf) paper.
 
+You can also take a look at the tutorial notebook.
+
 
 Prerequisites
 -------------
