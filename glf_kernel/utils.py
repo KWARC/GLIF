@@ -21,7 +21,7 @@ GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca
                'print_grammar', 'pg', 'print_history', 'ph', 'put_string', 'ps', 'put_tree', 'pt', 'quit', 'q', 'reload',
                'r', 'read_file', 'rf', 'rank_trees', 'rt', 'show_dependencies', 'sd', 'set_encoding', 'se', 'show_operations',
                'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
-               'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'vt', 'write_file', 'wf']
+               'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'view_tree', 'vt', 'write_file', 'wf']
 kernel_commands = ['show', 'clean', 'export', 'help']
 MMT_commands = ['archive', 'construct', 'subdir']
 mmtDefiners = ['theory', 'view']

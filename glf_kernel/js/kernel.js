@@ -31,7 +31,7 @@ define([
                                 "rt", "show_dependencies", "sd", "set_encoding", "se", "show_operations", "so",
                                 "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt",
                                 "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp",
-                                "visualize_tree", "vt", "write_file", "wf"];
+                                "visualize_tree", "view_tree", "vt", "write_file", "wf"];
                         var commonKernelCommands = ["view", "clean", "help", "export"];
                         CodeMirror.registerHelper("hintWords", "gf", commonKeywords.concat(commonBuiltins));
 
