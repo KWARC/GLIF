@@ -117,6 +117,6 @@ It also supports MMT specific functionalities like:
 - `subdir`: used to create or switch subfolders in the current working archives source folder. It is used just like the `archive` command.
 - `construct`: sends a construct request to MMT and displays the result.
 - You can use the kernel to define new theories or views just like you would do with grammars. For this the kernel also supports <kbd>Tab</kbd> completion of some Unicode characters. (e.g. \rightarrow + <kbd>Tab</kbd> will give you →. \MD + <kbd>Tab</kbd>, \OD + <kbd>Tab</kbd> and \DD + <kbd>Tab</kbd> will give you module, object and declaration delimiters respectively).
-
+- experimental: you can generate stubs for concrete syntaxes and semantics construction views from abstract syntax. Let's say you have defined an abstract syntax `MyGrammar`. Then you can generate a concrete syntax for e.g. English by entering `MyGrammarEng` and pressing <kbd>Tab</kbd> (stub-generation is autocompletion). Similarly, you can enter `MyGrammarSemantics` to generate a stub for the semantics-construction view. This only works, if our Python parse for GF can handle the abstract syntax (and it's still more of a prototype, so it can't handle e.g. dependent types).
 
 
