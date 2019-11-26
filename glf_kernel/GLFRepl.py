@@ -252,7 +252,7 @@ class GLFRepl:
             if args and len(args) == 1:
                 return self.mmtInterface.create_subdir(args[0])
             elif not args:
-                return os.path.basename(self.mmtInterface.get_cwd())
+                return os.path.relpath(self.mmtInterface.get_cwd(), os.path.join(self.mmtInterface.get_archive_path(), 'source'))
 
     # ---------------------------------------------------------------------------- #
     #                               GF Content                                     #
