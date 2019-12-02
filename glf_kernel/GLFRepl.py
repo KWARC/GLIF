@@ -275,7 +275,7 @@ class GLFRepl:
         except OSError:
             return 'Failed to create grammar %s' % (name)
         out = self.gfRepl.handle_gf_command("import %s" % (file_path))
-        if out == 'success':
+        if out == 'success' or out.startswith('Abstract changed'):
             build_result = self.mmtInterface.build_file(file_name) # build the Grammar with the GlfBuild extension
             if build_result['isSuccessful']:
                 self.grammars[name] = file_path
