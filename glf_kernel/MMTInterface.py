@@ -35,7 +35,6 @@ class MMTInterface():
         shell_commands = [
             'extension %s\n' % (GLF_BUILD_EXTENSION),
             'extension %s\n' % (GLF_CONSTRUCT_EXTENSION),
-            'build COMMA/GLF gf-omdoc\n',
             'server on %s\n' % (self.mmt_port)
         ]
         for command in shell_commands:
@@ -224,7 +223,10 @@ class MMTInterface():
         except:
             return 'Something went wrong during the request'
         if resp.status_code == 200:
-            return '\n'.join(resp.json())
+            try:
+                return '\n'.join(resp.json())
+            except:
+                return resp.text
 
 def find_archives(dir, base_dir=None):
     """
