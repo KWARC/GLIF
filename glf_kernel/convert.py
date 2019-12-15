@@ -45,6 +45,12 @@ def pop_op(tokens, pos, op):
         raise Exception(f"Line {tokens[pos][2]}: Expected '{op}', but found '{tokens[pos][0]}'")
     return pos + 1
 
+def pop_id(tokens, pos):
+    if tokens[pos][1] != "id":
+        raise Exception(f"Line {tokens[pos][2]}: Expected identifier, but found '{tokens[pos][0]}'")
+    return tokens[pos][0], pos + 1
+
+
 def process_tokens(tokens):
     if tokens[0][0] != "abstract":
         raise Exception("Line 1: Expected keyword 'abstract'")
@@ -83,12 +89,16 @@ def process_tokens(tokens):
         elif tokens[pos][1] == "op":
             raise Exception(f"Line {tokens[pos][2]}: Unexpected token: '{tokens[pos][0]}'")
         else:
-            n = tokens[pos][0]
-            pos += 1
+            n, pos = pop_id(tokens, pos)
             if catfun == "cat":
                 pos = pop_op(tokens, pos, ";")
                 cats += [n]
             elif catfun == "fun":
+                names = [n]
+                while tokens[pos][0] == ",":
+                    pos += 1
+                    n, pos = pop_id(tokens, pos)
+                    names.append(n)
                 pos = pop_op(tokens, pos, ":")
                 t = []
                 while tokens[pos][1] == "id":
@@ -97,7 +107,8 @@ def process_tokens(tokens):
                     if tokens[pos][0] == "->":
                         pos += 1
                 pos = pop_op(tokens, pos, ";")
-                funs += [(n, t)]
+                for n in names:
+                    funs += [(n, t)]
             else:
                 raise Exception(f"I don't know if '{n}' is a cat or a fun")
     pos = pop_op(tokens, pos, "}")
