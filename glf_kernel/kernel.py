@@ -196,9 +196,9 @@ class GLFKernel(Kernel):
                     if self.GFRepl.mmtInterface.subdir:
                         source += "/" + self.GFRepl.mmtInterface.subdir
                     source += "/" + grammar + ".gf?" + grammar
-                    replacement = generateMMT(path, source)
+                    replacement = generateMMT(path, source).strip()
                 else:
-                    replacement = generateConcrete(path, lang=suffix)
+                    replacement = generateConcrete(path, lang=suffix).strip()
                 return  {
                     'matches' : [replacement],
                     'cursor_end' : cursorPos,

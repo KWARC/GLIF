@@ -157,7 +157,7 @@ def generateConcrete(file, lang):
     # semantics construction stub:
     result += "concrete " + name + lang + " of " + name + " = "
     if imports:
-        result += ", ".join(imports) + " ** "
+        result += ", ".join(i + lang for i in imports) + " ** "
     result += "{\n"
     if imports and cats: print()
     if cats:
