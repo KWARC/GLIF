@@ -186,14 +186,16 @@ class GLFKernel(Kernel):
         while cp >= 0 and code[cp].isalnum() or code[cp] == "_":
             currentWord = code[cp] + currentWord
             cp -= 1
-        for grammar, path in grammars.items():
-            if currentWord.startswith(grammar[0]):
-                suffix = currentWord[len(grammar[0]):]
+        # try longest grammar names first. Reason: Match 'TestGrammar' before 'Test'
+        grammars_ordered = reversed(sorted(grammars.items(), key=lambda e:len(e[0])))
+        for grammar, path in grammars_ordered:
+            if currentWord.startswith(grammar):
+                suffix = currentWord[len(grammar):]
                 if suffix == "Semantics":
                     source = "http://mathhub.info/" + self.GFRepl.mmtInterface.archive
                     if self.GFRepl.mmtInterface.subdir:
                         source += "/" + self.GFRepl.mmtInterface.subdir
-                    source += "/" + grammar[0] + ".gf?" + grammar[0]
+                    source += "/" + grammar + ".gf?" + grammar
                     replacement = generateMMT(path, source)
                 else:
                     replacement = generateConcrete(path, lang=suffix)
