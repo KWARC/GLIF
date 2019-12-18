@@ -20,7 +20,7 @@ Prerequisites
 
 #### Python
 
-This package requires Python 3 (or newer) and this README assumes that this is the default python version. 
+This package requires Python 3.8 (or newer) and this README assumes that this is the default python version. 
 If in doubt, use `python3` instead of `python` and `python3 -m pip` instead of `pip`. 
 
 Additionally, `setuptools` is required to install this package. 
