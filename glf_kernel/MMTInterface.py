@@ -148,9 +148,12 @@ class MMTInterface():
             `file_name`: str; name of the file
         """
         # for some reason MMT archives have to be in upper-case when building them
+        file_ = file_name
+        if self.subdir:
+            file_ = '/'.join([self.subdir, file_name]) # MMT needs file paths in Linux format
         j = {
             'archive': self.archive,
-            'file': '/'.join([self.subdir, file_name]) # MMT needs file paths in Linux format
+            'file': file_,
         }
         resp = requests.post('http://localhost:%s/:glf-build' %
                              (self.mmt_port), json=j)
