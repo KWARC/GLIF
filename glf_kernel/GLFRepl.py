@@ -81,7 +81,7 @@ class GLFRepl:
                            
                             for line in lines:
                                 if line != '' and line != ' ' and line != '\n':
-                                    if name == 'parse':
+                                    if name == 'parse' or name == 'p':
                                         trees.append(line)
                                     pipe_res.append(line)
                         else:
