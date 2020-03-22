@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 import signal
 import time
 import re
@@ -30,6 +31,7 @@ class GLFRepl:
         # content handlers
         self.handlers = {
             'MMT_command': self.handle_mmt_command,
+            'ELPI_command': self.handle_elpi_command,
             'GF_command': self.gfRepl.handle_gf_command,
             'kernel_command': self.handle_kernel_command
         }
@@ -212,6 +214,26 @@ class GLFRepl:
                 return 'Exported %s' % (file)
         return 'Could not find %s' % (file_name)
 
+    def handle_elpi_command(self, command):
+        args = get_args(command)
+        elpi = subprocess.Popen((find_executable('elpi'),
+            '-exec',
+            args[1],  # predicate
+            os.path.join(self.mmtInterface.get_cwd(), args[0] + '.elpi'),  # file,
+            '--',
+            ' '.join(args[2:]),
+            ),
+            stdin = subprocess.PIPE,
+            stderr = subprocess.PIPE,
+            stdout = subprocess.PIPE,
+            text=True)
+        out, err = elpi.communicate()
+        if elpi.returncode not in [0,1]:
+            return 'ELPI ERROR: ' + str(elpi.returncode) + '\nOUTPUT:\n' + out + '\nERROR:\n' + err
+        else:
+            return out
+
+
     # ---------------------------------------------------------------------------- #
     #                                 MMT Commands                                 #
     # ---------------------------------------------------------------------------- #
@@ -238,15 +260,23 @@ class GLFRepl:
 
         elif name == 'construct':
             view = None
-            if(args[0] == '-v'):
-                view = args[1]
-                ASTsStr = ' '.join(args[2:])
-            else:
-                ASTsStr = ' '.join(args)
+            i = 0
+            toElpi = False
+            while True:
+                if args[i] == '-v':
+                    view = args[1]
+                    i += 2
+                elif args[i] == '-elpi':
+                    toElpi = True
+                    i += 1
+                else:
+                    break
+
+            ASTsStr = ' '.join(args[i:])
 
             h = ASTsStr.split('|')
             ASTs = list(map(str.strip, h))
-            return self.mmtInterface.construct(ASTs, view)
+            return self.mmtInterface.construct(ASTs, view, toElpi)
 
         elif name == 'subdir':
             if args and len(args) == 1:

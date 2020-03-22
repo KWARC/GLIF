@@ -24,9 +24,10 @@ GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca
                'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'visualize_tree', 'view_tree', 'vt', 'write_file', 'wf']
 kernel_commands = ['show', 'clean', 'export', 'help']
 MMT_commands = ['archive', 'archives', 'construct', 'subdir']
+ELPI_commands = ['elpi']
 mmtDefiners = ['theory', 'view']
 mmtDelimiters = ['\u2758', '\u2759', '\u275A']
-commonCommands = GF_commands + kernel_commands + MMT_commands
+commonCommands = GF_commands + kernel_commands + MMT_commands + ELPI_commands
 
 allKeywords = gfKeywords + gfBuiltins + \
     gfDefiners + commonCommands + mmtDefiners
@@ -119,6 +120,8 @@ def get_command_type(command):
         return "GF_command"
     elif name in kernel_commands:
         return "kernel_command"
+    elif name in ELPI_commands:
+        return "ELPI_command"
     else:
         return None
 

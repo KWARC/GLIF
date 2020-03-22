@@ -201,7 +201,7 @@ class MMTInterface():
         except OSError:
             return 'Failed to create view %s' % name
 
-    def construct(self, ASTs, v=None):
+    def construct(self, ASTs, v=None, toElpi=False):
         """
             Sends a construct request to the MMT GLF server
 
@@ -212,7 +212,8 @@ class MMTInterface():
 
         j = {
             'semanticsView': 'http://mathhub.info/%s/%s' % (self.archive, self.view),
-            'ASTs': ASTs
+            'ASTs': ASTs,
+            'toElpi' : toElpi,
         }
         try:
             # apparently requests.post().json() returns a list

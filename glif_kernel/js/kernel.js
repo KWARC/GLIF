@@ -32,7 +32,7 @@ define([
                                 "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt",
                                 "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp",
                                 "visualize_tree", "view_tree", "vt", "write_file", "wf"];
-                        var commonKernelCommands = ["show", "clean", "help", "export"];
+                        var commonKernelCommands = ["elpi", "construct", "show", "clean", "help", "export"];
                         CodeMirror.registerHelper("hintWords", "gf", commonKeywords.concat(commonBuiltins));
 
                         function top(state) {
