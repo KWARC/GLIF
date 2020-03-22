@@ -1,15 +1,16 @@
-GLF Kernel
+GLIF Kernel
 ==========
 
-`glf_kernel` is a kernel for [Jupyter](https://jupyter.org/) that combines functionalities of [GF](https://www.grammaticalframework.org/) and [MMT](https://uniformal.github.io/).
-It is based on the [GF Kernel](https://github.com/kwarc/gf_kernel), which only supports GF.
+`glif_kernel` is a kernel for [Jupyter](https://jupyter.org/) that combines functionalities of [GF](https://www.grammaticalframework.org/), [MMT](https://uniformal.github.io/) and [ELPI](https://github.com/LPCIC/elpi).
+It is based on the [GLF Kernel](https://github.com/kaiamann/glf_kernel), which only supports GF.
 
-GLF is intended as a framework for natural language understanding (NLU) experiments.
+GLIF is intended as a framework for natural language understanding (NLU) experiments.
 GF can be used to quickly write grammars for natural language fragments.
 MMT can be used to describe a logic and the translation from GF's parse trees into that logic, which is called semantics construction.
-This way, the GLF kernel can be used to quickly implement the entire pipeline from natural language strings to a logical expression.
+ELPI is used for inference.
+This way, the GLIF kernel can be used to quickly implement the entire pipeline from natural language strings to a logical expression and then do inference for ambiguity resolution/theorem proving/...
 
-If you want to read more about GLF, you may be interested in [this](https://kwarc.info/people/mkohlhase/submit/lfmtp-19.pdf) paper.
+If you want to read more about GLF, the framework underlying GLIF, you may be interested in [this](https://kwarc.info/people/mkohlhase/submit/lfmtp-19.pdf) paper.
 
 You can also take a look at the tutorial notebook.
 
@@ -33,9 +34,13 @@ If you haven't installed GF already, get it from the official [download website]
 #### MMT
 
 You can find installation instructions for MMT [here](https://uniformal.github.io//doc/setup/).
-Please note that as of now (November 2019), GLF uses some not-yet released features of MMT.
+Please note that as of now (March 2020), GLIF uses some not-yet released features of MMT.
 So you will have to either talk to us (probably the best idea) or try building MMT yourself from the `devel` branch of the git repository.
-If you only want to use MMT for the `glf_kernel`, you don't have to install an MMT development IDE (in a way, the notebooks will be your IDE).
+If you only want to use MMT for the `glif_kernel`, you don't have to install an MMT development IDE (in a way, the notebooks will be your IDE).
+
+#### ELPI
+
+You need ELPI, which you can get from OPAM (see [this README](https://github.com/LPCIC/elpi)).
 
 #### Optional: Graphviz
 
@@ -51,7 +56,7 @@ or under Mac OS X with [homebrew](https://brew.sh):
 Remarks for Windows Users
 -------------------------
 
-The `glf_kernel` has been succesfully installed on Windows as well.
+The `glif_kernel` has been succesfully installed on Windows as well.
 There are two ways you can go about it, and it is not clear which one is better/easier/more likely to work:
 
 #### Using the Windows Subsystem for Linux (WSL)
@@ -73,16 +78,12 @@ Installation
 You can either install the kernel from the source repository: 
 
     git clone 'insert right URL here'
-    cd glf_kernel
+    cd GLIF
     pip install .
-
-or install it directly from pip:
-
-    pip install glf-kernel
 
 Afterwards, install the kernel module with:
 
-    python -m glf_kernel.install
+    python -m glif_kernel.install
     
 
 Usage
@@ -100,7 +101,7 @@ If you intend on using the visulaization capabilities of the kernel please make 
     conda install -c conda-forge nodejs
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
-Select the `glf_kernel` as kernel in your notebook.
+Select `GLIF` as kernel in your notebook.
 The kernel supports all of the GF shell commands.
 Output files produced by these commands will be placed into the current directory.
 
