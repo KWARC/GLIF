@@ -8,8 +8,8 @@ from IPython.utils.tempdir import TemporaryDirectory
 
 
 kernel_json = {
-    "argv": [sys.executable, "-m", "glf_kernel", "-f", "{connection_file}"],
-    "display_name": "GLF",
+    "argv": [sys.executable, "-m", "glif_kernel", "-f", "{connection_file}"],
+    "display_name": "GLIF",
     "language": "gf",
 }
 
@@ -30,8 +30,8 @@ def install_my_kernel_spec(user=True, prefix=None):
         css = os.path.join(dir_path, os.path.join('css', 'gf.css'))
         shutil.copy2(css, td)
 
-        print('Installing Jupyter kernel spec GLF')
-        KernelSpecManager().install_kernel_spec(td, 'GLF', user=user, prefix=prefix)
+        print('Installing Jupyter kernel spec GLIF')
+        KernelSpecManager().install_kernel_spec(td, 'GLIF', user=user, prefix=prefix)
 
 
 def _is_root():

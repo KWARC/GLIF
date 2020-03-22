@@ -7,11 +7,11 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='glf_kernel',
+    name='glif_kernel',
     version='1.0.0',
-    packages=['glf_kernel'],
+    packages=['glif_kernel'],
     package_data={
-        'glf_kernel' : ['messages.json', 'unicode-latex-map']
+        'glif_kernel' : ['messages.json', 'unicode-latex-map']
     },
     install_requires = [
         'ipykernel>=5.1.0',
@@ -26,7 +26,7 @@ setuptools.setup(
     include_package_data=True,
     author='Kai Amann',
     author_email='kai.amann@fau.de',
-    url='https://github.com/UniFormal/glf_kernel',
+    url='https://github.com/UniFormal/glif_kernel',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
