@@ -8,31 +8,45 @@ import re
 from json import load
 from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
-from .utils import parse, to_message_format, get_name, get_args, GF_commands, tree
+from .utils import parse, to_message_format, get_name, get_args, GF_commands, tree, create_nested_dir
 from .MMTInterface import MMTInterface
 from .GFRepl import GFRepl
 from distutils.spawn import find_executable
+
+# TODO maybe get Florian to introduce a MMT-Path
+MMT_PATH = os.getenv('MMT_PATH', default=os.path.join(os.path.expanduser('~'), 'MMT'))
+GF_PATH = find_executable('gf')
 
 
 class GLFRepl:
 
     def __init__(self):
-        # initialize the MMT interface
-        self.mmtInterface = MMTInterface()
-
         self.td = TemporaryDirectory()
         self.to_clean_up = ['.dot', '.png', '.gfo']
-
-        # start the GF Repl
-        self.gfRepl = GFRepl()
+        # by default save grammars into td
+        self.grammar_path = self.td.name
         self.out_count = 0
+
+        self.gfRepl = None
+        self.mmtInterface = None
+
+        if GF_PATH:
+            # start the GF Repl
+            self.gfRepl = GFRepl(GF_PATH)
+            
+        if os.path.isdir(MMT_PATH):
+            # initialize the MMT interface
+            self.mmtInterface = MMTInterface(MMT_PATH)
+            # in case of MMT installation store grammars in MMT archive
+            self.grammar_path = self.mmtInterface.get_cwd()
+        
         self.grammars = self.search_grammars()
 
         # content handlers
         self.handlers = {
             'MMT_command': self.handle_mmt_command,
             'ELPI_command': self.handle_elpi_command,
-            'GF_command': self.gfRepl.handle_gf_command,
+            'GF_command': self.handle_gf_command,
             'kernel_command': self.handle_kernel_command
         }
 
@@ -47,8 +61,10 @@ class GLFRepl:
     def do_shutdown(self):
         """Terminates the GF shell and the MMT subprocess"""
         self.td.cleanup()
-        self.gfRepl.do_shutdown()
-        self.mmtInterface.do_shutdown()
+        if self.gfRepl:
+            self.gfRepl.do_shutdown()
+        if self.mmtInterface:
+            self.mmtInterface.do_shutdown()
 
     # ---------------------------------------------------------------------------- #
     #                           General Content Handling                           #
@@ -104,14 +120,14 @@ class GLFRepl:
                             messages.append(to_message_format(message=res))
 
             elif parse_dict['type'] == 'GFContent':
-                messages.append(to_message_format(
-                    message=self.handle_grammar(code, parse_dict['name'])))
+                messages.append(to_message_format(message=self.handle_grammar(code, parse_dict['name'])))
             elif parse_dict['type'] == 'MMTContent':
-                messages.append(to_message_format(
-                    message=self.mmtInterface.create_mmt_file(code, parse_dict['name'], parse_dict['mmt_type'])))
+                if self.mmtInterface:
+                    messages.append(to_message_format(message=self.mmtInterface.create_mmt_file(code, parse_dict['name'], parse_dict['mmt_type'])))
+                else:
+                    messages.append(to_message_format(message="No MMT installation found. MMT content not available."))
         else:
-            messages.append(to_message_format(
-                message="Input is neither valid GF or MMT content nor a valid shell command!"))
+            messages.append(to_message_format(message="Input is neither valid GF or MMT content nor a valid shell command!"))
 
         return messages
 
@@ -138,13 +154,17 @@ class GLFRepl:
         elif name == 'export':
             return self.do_export(args[0])
 
+        elif name == 'grammar-path':
+            if self.mmtInterface:
+                return "Detected an MMT installation. Please change the grammar path by modifiying the current archive."
+            self.grammar_path = create_nested_dir(os.getcwd(), args[0])
+            return "Set grammar-path to %s" % (self.grammar_path)
+
         elif name == 'help':
             if not self.messages:
                 return "No help available"
             if args:
                 name = args[0]
-                if name in GF_commands:
-                    return self.gfRepl.handle_gf_command('h %s' % (name))
                 if name in self.messages.keys():
                     return self.messages[name]
                 else:
@@ -214,6 +234,11 @@ class GLFRepl:
                 return 'Exported %s' % (file)
         return 'Could not find %s' % (file_name)
 
+
+    # ---------------------------------------------------------------------------- #
+    #                                 ELPI Commands                                #
+    # ---------------------------------------------------------------------------- #
+
     def handle_elpi_command(self, command):
         args = get_args(command)
         elpi = subprocess.Popen((find_executable('elpi'),
@@ -244,16 +269,21 @@ class GLFRepl:
 
             'command': str; the command
         """
+        if not self.mmtInterface:
+            return "MMT functionality unavailable. No MMT installation detected."
+
         name = get_name(command)
         args = get_args(command)
         if name == 'archive':
             if not args:
-                # TODO make this into a sring so output order doesn't get screwed
+                # TODO make this into a string so output order doesn't get screwed
                 tree(dir=self.mmtInterface.get_archive_path(), archive_name=self.mmtInterface.get_archive())
                 return ''
             if len(args) > 1:
                 return 'archive takes only one argument!'
-            return self.mmtInterface.handle_archive(args[0])
+            msg = self.mmtInterface.handle_archive(args[0])
+            self.grammar_path = self.mmtInterface.get_cwd()
+            return msg
         
         if name == 'archives':
             return ', '.join(self.mmtInterface.get_archives())
@@ -280,13 +310,21 @@ class GLFRepl:
 
         elif name == 'subdir':
             if args and len(args) == 1:
-                return self.mmtInterface.create_subdir(args[0])
+                msg = self.mmtInterface.create_subdir(args[0])
+                self.grammar_path = self.mmtInterface.get_cwd()
+                return msg
             elif not args:
                 return os.path.relpath(self.mmtInterface.get_cwd(), os.path.join(self.mmtInterface.get_archive_path(), 'source'))
 
     # ---------------------------------------------------------------------------- #
     #                               GF Content                                     #
     # ---------------------------------------------------------------------------- #
+
+    def handle_gf_command(self, command):
+        if not self.gfRepl:
+            return "GF functionality unavailable. No GF installation detected."
+        return self.gfRepl.handle_gf_command(command)
+
 
     def handle_grammar(self, content, name):
         """
@@ -297,15 +335,19 @@ class GLFRepl:
         """
 
         file_name = "%s.gf" % (name)
-        file_path = os.path.join(self.mmtInterface.get_cwd(), file_name)
+        file_path = os.path.join(self.grammar_path, file_name)
         try:
             with open(file_path, 'w') as f:
                 f.write(content)
                 f.close()
         except OSError:
             return 'Failed to create grammar %s' % (name)
-        out = self.gfRepl.handle_gf_command("import %s" % (file_path))
+        out = self.handle_gf_command("import %s" % (file_path))
         if out == 'success' or out.startswith('Abstract changed'):
+            if not self.mmtInterface:
+                self.grammars[name] = file_path
+                return "Defined %s" % (name)
+
             build_result = self.mmtInterface.build_file(file_name) # build the Grammar with the GlfBuild extension
             if build_result['isSuccessful']:
                 self.grammars[name] = file_path
@@ -316,7 +358,7 @@ class GLFRepl:
 
     def search_grammars(self):
         grammars = {}
-        cwd = self.mmtInterface.get_cwd()
+        cwd = self.grammar_path
         for file in os.listdir(cwd):
             if file.endswith(".gf"):
                 path = os.path.join(cwd, file)

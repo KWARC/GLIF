@@ -8,9 +8,9 @@ from .utils import get_name, get_args
 COMMAND_SEPARATOR = "COMMAND_SEPARATOR===??!<>239'_"
 
 class GFRepl(object):
-    def __init__(self):
+    def __init__(self, GF_PATH):
         self.pipe = os.pipe()
-        self.gf_shell = subprocess.Popen((find_executable('gf'), '--run'),
+        self.gf_shell = subprocess.Popen((GF_PATH, '--run'),
                           stdin = subprocess.PIPE,
                           stderr = self.pipe[1],
                           stdout = self.pipe[1],
@@ -49,7 +49,7 @@ class GFRepl(object):
         self.write_cmd(cmd)
         sep = self.write_separator()
         self.gf_shell.stdin.flush()
-        res = self.get_output(sep)
+        res = self.get_output(sep).strip()
         if cmd_name == "import" and not res:
             return "success"
         return res
@@ -64,7 +64,7 @@ class GFRepl(object):
 
 if __name__ == "__main__":
     import sys
-    gfrepl = GFRepl()
+    gfrepl = GFRepl(find_executable('gf'))
     print(gfrepl.initialOutput)
     while True:
         line = input("> ")

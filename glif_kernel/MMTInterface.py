@@ -8,8 +8,6 @@ from subprocess import PIPE, Popen
 from IPython.utils.tempdir import TemporaryDirectory
 from .utils import get_args, generate_port, create_nested_dir
 
-# TODO maybe get Florian to introduce a MMT-Path
-MMT_LOCATION = os.getenv('MMT_PATH', default=join(expanduser('~'), 'MMT'))
 GLF_BUILD_EXTENSION = 'info.kwarc.mmt.glf.GlfBuildServer'
 GLF_CONSTRUCT_EXTENSION = 'info.kwarc.mmt.glf.GlfConstructServer'
 
@@ -19,7 +17,7 @@ LOG_TO_CONSOLE = False
 
 class MMTInterface():
 
-    def __init__(self):
+    def __init__(self, MMT_PATH):
           # start MMT
         if LOG_TO_CONSOLE:
             stdout = None
@@ -27,7 +25,7 @@ class MMTInterface():
             stdout = PIPE
 
         MMT_ARGS = [
-            'java', '-jar', join(MMT_LOCATION, 'deploy', 'mmt.jar'), '-w'  # FIXME what does -w do??
+            'java', '-jar', join(MMT_PATH, 'deploy', 'mmt.jar'), '-w'  # FIXME what does -w do??
         ]
         self.mmt = Popen(MMT_ARGS, stdin=PIPE, stdout=stdout, text=True, encoding='utf-8')
         self.mmt_port = generate_port()
@@ -41,7 +39,8 @@ class MMTInterface():
             self.mmt.stdin.write(command)
         self.mmt.stdin.flush()
 
-        self.content_path = do_get_content_path()
+        self.mmt_path = MMT_PATH
+        self.content_path = self.do_get_content_path()
         self.archives = find_archives(self.content_path)
         self.archive = 'comma/jupyter' # set COMMA/JUPYTER as default archive
         self.handle_archive(self.archive) 
@@ -232,6 +231,21 @@ class MMTInterface():
             except:
                 return resp.text
 
+    def do_get_content_path(self):
+        """reads the the path to the MMT-content folder from mmtrc and returns it"""
+        # TODO maybe find a more elegant solution for this
+        # try:
+        with open(join(self.mmt_path, 'deploy', 'mmtrc'), 'r') as f:
+            for _ in range(5): # read the 5th line from mmtrc
+                line = f.readline()
+            _, content_path = line.split(' ', 1)
+            f.close()
+            return content_path.strip()
+        # except OSError:
+        #     return None
+
+
+
 def find_archives(dir, base_dir=None):
     """
         Searches the directory `dir` recursively for archive directories.
@@ -287,19 +301,6 @@ def get_archive_name(dir):
         return archive_name.strip()
     except:
         return None
-
-def do_get_content_path():
-    """reads the the path to the MMT-content folder from mmtrc and returns it"""
-    # TODO maybe find a more elegant solution for this
-    # try:
-    with open(join(MMT_LOCATION, 'deploy', 'mmtrc'), 'r') as f:
-        for _ in range(5): # read the 5th line from mmtrc
-            line = f.readline()
-        _, content_path = line.split(' ', 1)
-        f.close()
-        return content_path.strip()
-    # except OSError:
-    #     return None
 
 
 
