@@ -371,7 +371,7 @@
 \parallel|∥
 \nparallel|∦
 \URI|☞
-\/ some of these have length 2 in Java and won't work everywhere
+// some of these have length 2 in Java and won't work everywhere
 \U|𝒰
 \calA|𝒜
 \calB|ℬ

@@ -170,11 +170,13 @@ class GLFKernel(Kernel):
     def do_complete(self,code,cursorPos):
         """Autocompletion when the user presses tab"""
         # load the shortcuts from the unicode-latex-map
+        # TODO: It might be more efficient to do this only once
         charMapPath = os.path.dirname(os.path.realpath(__file__))
         shortcuts = {}
         with open(os.path.join(charMapPath,'unicode-latex-map'), 'r', encoding='utf-8') as charMap:
             for line in charMap:
                 line = line.replace('\n','',1)
+                if line.startswith('//'): continue   # the file contains comments
                 st, repl = line.split("|", 1)
                 shortcuts[st] = repl
 
