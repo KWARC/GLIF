@@ -39,6 +39,8 @@ class GLFRepl:
             self.mmtInterface = MMTInterface(MMT_PATH)
             # in case of MMT installation store grammars in MMT archive
             self.grammar_path = self.mmtInterface.get_cwd()
+
+        self.MMT_blocked = False
         
         self.grammars = self.search_grammars()
 
@@ -155,9 +157,12 @@ class GLFRepl:
             return self.do_export(args[0])
 
         elif name == 'grammar-path':
-            if self.mmtInterface:
-                return "Detected an MMT installation. Please change the grammar path by modifiying the current archive."
             self.grammar_path = create_nested_dir(os.getcwd(), args[0])
+
+            if self.mmtInterface:
+                self.MMT_blocked = True
+                return "Set grammar-path to %s. MMT functionality is now disabled" % (self.grammar_path)
+            
             return "Set grammar-path to %s" % (self.grammar_path)
 
         elif name == 'help':
@@ -271,6 +276,9 @@ class GLFRepl:
         """
         if not self.mmtInterface:
             return "MMT functionality unavailable. No MMT installation detected."
+        
+        if self.MMT_blocked:
+            return "MMT-functionality is blocked due to changes to the storing location for Grammars with 'grammar-location'."
 
         name = get_name(command)
         args = get_args(command)
