@@ -44,6 +44,10 @@ Please note that as of now (March 2020), GLIF uses some not-yet released feature
 So you will have to either talk to us (probably the best idea) or try building MMT yourself from the `devel` branch of the git repository.
 If you only want to use MMT for the `glif_kernel`, you don't have to install an MMT development IDE (in a way, the notebooks will be your IDE).
 
+To tell `glif_kernel` where to find the MMT installation, you need to set the environment variable
+`MMT_PATH` such that it points to the directory with your MMT installation,
+i.e. there should be the file `$MMT_PATH/deploy/mmt.jar`.
+
 #### ELPI (optional)
 
 You need ELPI, which you can get from OPAM (see [this README](https://github.com/LPCIC/elpi)).
