@@ -30,7 +30,7 @@ define([
                                 "ps", "put_tree", "pt", "quit", "q", "reload", "r", "read_file", "rf", "rank_trees",
                                 "rt", "show_dependencies", "sd", "set_encoding", "se", "show_operations", "so",
                                 "system_pipe", "sp", "show_source", "ss", "translation_quiz", "tq", "to_trie", "tt",
-                                "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp",
+                                "unicode_table", "ut", "visualize_dependency", "vd", "visualize_parse", "vp", "view_parse",
                                 "visualize_tree", "view_tree", "vt", "write_file", "wf"];
                         var commonKernelCommands = ["elpi", "construct", "show", "clean", "help", "export"];
                         CodeMirror.registerHelper("hintWords", "gf", commonKeywords.concat(commonBuiltins));
