@@ -114,9 +114,9 @@ Output files produced by these commands will be placed into the current director
 
 ### Introductory Notebooks
 
-* `notebooks/gf-with-glif.ipynb`: Explains how to use the kernel for GF
-* `notebooks/mmt-with-glif.ipynb`: Explains how to use the kernel for MMT
-* `notebooks/glif-with-glif.ipynb`: Explains how to use the kernel for implementing GLIF pipelines. You should check out the previous two notebooks first.
+* `notebooks/tutorial-gf.ipynb`: Explains how to use the kernel for GF
+* `notebooks/tutorial-mmt.ipynb`: Explains how to use the kernel for MMT
+* `notebooks/tutorial-glif.ipynb`: Explains how to use the kernel for implementing GLIF pipelines. You should check out the previous two notebooks first.
 
 
 ### Kernel Commands etc. (possibly out-dated)
