@@ -78,7 +78,7 @@ def process_tokens(tokens):
         if tokens[pos][0] == "cat":
             catfun = "cat"
             pos += 1
-        elif tokens[pos][0] == "fun":
+        elif tokens[pos][0] in ["fun", "data"]:
             catfun = "fun"
             pos += 1
         elif catfun == "skip":
