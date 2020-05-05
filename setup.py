@@ -19,6 +19,8 @@ setuptools.setup(
         'ipywidgets>=7.4.2',
         'jupyter>=1.0.0',
         'jupyter-client>=5.2.4',
+        'setuptools>=46',
+        'requests>=2.23',
     ],
     description='Simple example kernel for GLF',
     long_description=long_description,
