@@ -62,6 +62,7 @@ def parse(code):
     }
     isMMTContent = False
     isGFContent = False
+    isELPIContent = False
     for line in lines:
         words = line.strip().split(' ')
         lastWord = ''
@@ -87,6 +88,14 @@ def parse(code):
                 else:
                     parseDict['mmt_type'] = 'view'
                 parseDict['commands'] = []
+                return parseDict
+            if word == 'elpi:':
+                isELPIContent = True
+                lastWord = word
+                continue
+            if isELPIContent:
+                parseDict['type'] = 'ELPIContent'
+                parseDict['name'] = word
                 return parseDict
             if not isGFContent and not isMMTContent and word in commonCommands and word == words[0]:
                 pipe_commands = list(map(str.strip, line.split('|')))

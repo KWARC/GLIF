@@ -128,6 +128,8 @@ class GLFRepl:
                     messages.append(to_message_format(message=self.mmtInterface.create_mmt_file(code, parse_dict['name'], parse_dict['mmt_type'])))
                 else:
                     messages.append(to_message_format(message="No MMT installation found. MMT content not available."))
+            elif parse_dict['type'] == 'ELPIContent':
+                messages.append(to_message_format(message=self.handle_elpi_rules(code, parse_dict['name'])))
         else:
             messages.append(to_message_format(message="Input is neither valid GF or MMT content nor a valid shell command!"))
 
@@ -246,10 +248,14 @@ class GLFRepl:
 
     def handle_elpi_command(self, command):
         args = get_args(command)
+        if len(args) < 2:
+            return 'ERROR: "elpi" command requires at least 2 arguments (file and rule)'
+        if not args[0].endswith('.elpi'):
+            args[0] += '.elpi'
         elpi = subprocess.Popen((find_executable('elpi'),
             '-exec',
             args[1],  # predicate
-            os.path.join(self.mmtInterface.get_cwd(), args[0] + '.elpi'),  # file,
+            os.path.join(self.mmtInterface.get_cwd(), args[0]),  # file,
             '--',
             ' '.join(args[2:]),
             ),
@@ -333,6 +339,17 @@ class GLFRepl:
             return "GF functionality unavailable. No GF installation detected."
         return self.gfRepl.handle_gf_command(command)
 
+    def handle_elpi_rules(self, content, name):
+        if not name.endswith('.elpi'):
+            name += '.elpi'
+        file_path = os.path.join(self.grammar_path, name)
+        try:
+            with open(file_path, 'w') as f:
+                f.write('\n'.join(content.splitlines()[1:]))
+                f.close()
+        except OSError:
+            return 'Failed to create grammar %s' % (name)
+        return 'Created ' + name
 
     def handle_grammar(self, content, name):
         """
