@@ -1,9 +1,13 @@
 concrete GrammarGer of Grammar = {
     lincat
-        NP, S = Str ;
+        Person = Str ;
+        Action = Str ;
+        Sentence = Str ;
     lin
         john = "Johann" ;
         mary = "Maria" ;
-        love a b = a ++ "liebt" ++ b ;
+        run = "rennt" ;
+        be_happy = "ist glücklich" ;
+        make_sentence person action = person ++ action ;
         and a b = a ++ "und" ++ b ;
 }
