@@ -8,13 +8,14 @@ from .utils import get_name, get_args
 COMMAND_SEPARATOR = "COMMAND_SEPARATOR===??!<>239'_"
 
 class GFRepl(object):
-    def __init__(self, GF_PATH):
+    def __init__(self, GF_PATH, cwd=None):
         self.pipe = os.pipe()
         self.gf_shell = subprocess.Popen((GF_PATH, '--run'),
                           stdin = subprocess.PIPE,
                           stderr = self.pipe[1],
                           stdout = self.pipe[1],
-                          text = True)
+                          text = True,
+                          cwd=cwd)
         self.commandcounter = 0
         self.infile = os.fdopen(self.pipe[0])
 

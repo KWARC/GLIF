@@ -68,6 +68,13 @@ class GLFRepl:
         if self.mmtInterface:
             self.mmtInterface.do_shutdown()
 
+    def reload_gfrepl(self):
+        if GF_PATH:
+            self.gfRepl = GFRepl(GF_PATH, self.grammar_path)
+            return 'Successfully reloaded GF'
+        else:
+            return 'No gf executable was found'
+
     # ---------------------------------------------------------------------------- #
     #                           General Content Handling                           #
     # ---------------------------------------------------------------------------- #
@@ -160,12 +167,13 @@ class GLFRepl:
 
         elif name == 'grammar-path':
             self.grammar_path = create_nested_dir(os.getcwd(), args[0])
-
+            gf_msg = self.reload_gfrepl()
             if self.mmtInterface:
                 self.MMT_blocked = True
-                return "Set grammar-path to %s. MMT functionality is now disabled" % (self.grammar_path)
+                return "Set grammar-path to %s. MMT functionality is now disabled.\n%s" % (self.grammar_path, gf_msg)
             
-            return "Set grammar-path to %s" % (self.grammar_path)
+
+            return "Set grammar-path to %s.\n%s" % (self.grammar_path, gf_msg)
 
         elif name == 'help':
             if not self.messages:
@@ -297,7 +305,8 @@ class GLFRepl:
                 return 'archive takes only one argument!'
             msg = self.mmtInterface.handle_archive(args[0])
             self.grammar_path = self.mmtInterface.get_cwd()
-            return msg
+            gf_msg = self.reload_gfrepl()
+            return msg + '\n' + gf_msg
         
         if name == 'archives':
             return ', '.join(self.mmtInterface.get_archives())
@@ -326,7 +335,8 @@ class GLFRepl:
             if args and len(args) == 1:
                 msg = self.mmtInterface.create_subdir(args[0])
                 self.grammar_path = self.mmtInterface.get_cwd()
-                return msg
+                gf_msg = self.reload_gfrepl()
+                return msg + '\n' + gf_msg
             elif not args:
                 return os.path.relpath(self.mmtInterface.get_cwd(), os.path.join(self.mmtInterface.get_archive_path(), 'source'))
 

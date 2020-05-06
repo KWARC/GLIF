@@ -198,7 +198,7 @@ class MMTInterface():
             else:
                 return '\n'.join(build_result['errors'])
         except OSError:
-            return 'Failed to create view %s' % name
+            return 'Failed to create %s' % name
 
     def construct(self, ASTs, v=None, toElpi=False):
         """
