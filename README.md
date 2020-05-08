@@ -10,6 +10,18 @@ It is based on the [GLF Kernel](https://github.com/kaiamann/glf_kernel), which o
 Similarly, it is possible, to use the kernel only for MMT theories.
 
 
+Try it Out Online
+-----------------
+
+We have recently added the GLIF kernel to mybinder.org: [https://mybinder.org/v2/gh/jfschaefer/GlifBinder/master](https://mybinder.org/v2/gh/jfschaefer/GlifBinder/master).
+Note that it may take a minute to launch. This is still at an experimental stage.
+
+You can also try to run the kernel locally via docker. By default, you get the Jupyter Lab interface.
+
+    docker pull jfschaefer/glif:1.0
+    docker run -p 8888:8888 jfschaefer/glif:1.0
+
+
 Prerequisites
 -------------
 
