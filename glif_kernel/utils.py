@@ -45,12 +45,14 @@ def check_port(host, port):
     return res
 
 
-def generate_port(h="localhost", start=8080, end=30000):
-    import time
-    for p in range(start, end):
+def generate_port(h="localhost", start=8080, end=30000,jumpmax=4):
+    import time, random
+    p = start + random.randint(0,jumpmax)
+    while p < end:
         if not check_port(h, p):
             return p
-        time.sleep(1)
+        p += random.randint(1,jumpmax)
+        time.sleep(0.5)
 
 
 def parse(code):
