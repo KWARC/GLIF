@@ -23,6 +23,7 @@ If in doubt, use `python3` instead of `python` and `python3 -m pip` instead of `
 #### GF (optional)
 
 If you haven't installed GF already, get it from the official [download website](https://www.grammaticalframework.org/download/index.html).
+Make sure that `gf` is in your path.
 
 ##### Optional: Graphviz (for viewing parse trees)
 
@@ -48,6 +49,9 @@ i.e. there should be the file `$MMT_PATH/deploy/mmt.jar`.
 #### ELPI (optional)
 
 You need ELPI, which you can get from OPAM (see [this README](https://github.com/LPCIC/elpi)).
+Make sure that `elpi` is in your path.
+Note that people sometimes install old elpi without noticing. This results in some of the examples
+not working.
 
 
 
@@ -110,6 +114,11 @@ Output files produced by these commands will be placed into the current director
 
 
 ### Introductory Notebooks
+
+The `notebooks` folder contains many different example notebooks. `notebooks/README.md` contains
+more detailed information on them.
+
+The recommended introductory notebooks are:
 
 * `notebooks/tutorial-gf.ipynb`: Explains how to use the kernel for GF
 * `notebooks/tutorial-mmt.ipynb`: Explains how to use the kernel for MMT
