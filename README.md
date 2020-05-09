@@ -18,7 +18,6 @@ Note that it may take a minute to launch. This is still at an experimental stage
 
 You can also try to run the kernel locally via docker. By default, you get the Jupyter Lab interface.
 
-    docker pull jfschaefer/glif:1.0
     docker run -p 8888:8888 jfschaefer/glif:1.0
 
 
