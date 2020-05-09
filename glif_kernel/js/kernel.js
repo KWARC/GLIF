@@ -119,12 +119,19 @@ define([
                         
                                                 // MMT Keywords
                                                 if (stream.match(MMTKeywords) || stream.match(MMTDefiners)) return "keyword";
+
+                                                // handle URIs
+                                                if(stream.match(/http/)) {
+                                                        push(handleURIs, stream, state);
+                                                        return "variable-2";
+                                                }
                         
                                                 // Handle single line MMT comments
-                                                if (stream.match(/\\T/)) {
+                                                if (stream.match(/\/T/) || stream.match(/\/\//)) {
                                                         stream.skipToEnd();
                                                         return "comment";
                                                 }
+
                         
                                                 // handle identifiers / words
                                                 if (stream.match(Identifiers)) {
@@ -174,6 +181,20 @@ define([
                                         if (ch == '"' || ch == "'") return push(handleStrings(ch), stream, state);
                         
                                         // don't style unknown stuff
+                                        return null;
+                                }
+
+                                function handleURIs(stream, state) {
+                                        // handle operators
+                                        if (stream.match(Operators)) return "operator";
+
+                                        // handle separators
+                                        if (stream.match(MMTSeparators)) return "meta";
+
+                                        // handle words
+                                        if (stream.match(/[\w\.]/)) return "variable-2";
+
+                                        state.tokenize.pop();
                                         return null;
                                 }
                         
