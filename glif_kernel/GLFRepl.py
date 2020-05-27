@@ -316,10 +316,12 @@ class GLFRepl:
             i = 0
             toElpi = False
             while True:
-                if args[i] == '-v':
-                    view = args[1]
+                if args[i] == '-v' or args[i] == '-view':
+                    if len(args) <= i:
+                        return f'{args[i]} option requires argument'
+                    view = args[i + 1]
                     i += 2
-                elif args[i] == '-elpi':
+                elif args[i] == '-e' or args[i] == '-elpi':
                     toElpi = True
                     i += 1
                 else:
