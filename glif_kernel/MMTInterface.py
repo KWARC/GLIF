@@ -10,6 +10,7 @@ from .utils import get_args, generate_port, create_nested_dir
 
 GLF_BUILD_EXTENSION = 'info.kwarc.mmt.glf.GlfBuildServer'
 GLF_CONSTRUCT_EXTENSION = 'info.kwarc.mmt.glf.GlfConstructServer'
+ELPI_GENERATION_EXTENSION = 'info.kwarc.mmt.glf.ElpiGenerationServer'
 
 # if set to true MMT logs will be printed into the Jupyter Console
 LOG_TO_CONSOLE = False
@@ -33,6 +34,7 @@ class MMTInterface():
         shell_commands = [
             'extension %s\n' % (GLF_BUILD_EXTENSION),
             'extension %s\n' % (GLF_CONSTRUCT_EXTENSION),
+            'extension %s\n' % (ELPI_GENERATION_EXTENSION),
             'server on %s\n' % (self.mmt_port)
         ]
         for command in shell_commands:
@@ -230,6 +232,25 @@ class MMTInterface():
                 return '\n'.join(resp.json())
             except:
                 return resp.text
+
+    def elpigen(self, mode, theory, targetName):
+        j = {
+                'theory' : 'http://mathhub.info/%s/%s' % (self.archive, theory),
+                'mode' : mode,
+        }
+        try:
+            resp = requests.post(
+                'http://localhost:%s/:glif-elpigen' % (self.mmt_port), json=j)
+        except:
+            return 'Something went wrong during the request'
+        # (success, result)
+        try:
+            return (True, resp.json())
+        except:
+            return (False, resp.text)
+
+
+
 
     def do_get_content_path(self):
         """reads the the path to the MMT-content folder from mmtrc and returns it"""

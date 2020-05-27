@@ -23,7 +23,7 @@ GF_commands = ['abstract_info', 'ai', 'align_words', 'al', 'clitic_analyse', 'ca
                'so', 'system_pipe', 'sp', 'show_source', 'ss', 'translation_quiz', 'tq', 'to_trie', 'tt', 'unicode_table',
                'ut', 'visualize_dependency', 'vd', 'visualize_parse', 'vp', 'view_parse', 'visualize_tree', 'view_tree', 'vt', 'write_file', 'wf']
 kernel_commands = ['show', 'clean', 'export', 'help', 'grammar-path']
-MMT_commands = ['archive', 'archives', 'construct', 'subdir']
+MMT_commands = ['archive', 'archives', 'construct', 'subdir', 'elpigen']
 ELPI_commands = ['elpi']
 mmtDefiners = ['theory', 'view']
 mmtDelimiters = ['\u2758', '\u2759', '\u275A']

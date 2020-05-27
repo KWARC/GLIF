@@ -333,6 +333,41 @@ class GLFRepl:
             ASTs = list(map(str.strip, h))
             return self.mmtInterface.construct(ASTs, view, toElpi)
 
+        elif name == 'elpigen':
+            theory = None
+            mode = None
+            targetName = None
+            i = 0
+            while True:
+                if not i < len(args):
+                    break
+                if args[i] == '-o' or args[i] == '-out':
+                    if not i + 1 < len(args):
+                        return f'Option {args[i]} requires argument'
+                    targetName = args[i+1]
+                    i += 2
+                    continue
+                if not mode:
+                    mode = args[i]
+                elif not theory:
+                    theory = args[i]
+                else:
+                    return 'Too many arguments'
+                i += 1
+            if not mode: return 'No mode specified'
+            if not theory: return 'No theory specified'
+            result = self.mmtInterface.elpigen(mode, theory, targetName)
+            if not result[0]:
+                return 'An error occured:\n' + result[1]
+            elpicode = result[1]
+            if not targetName:
+                targetName = theory
+            if not targetName.endswith('.elpi'):
+                targetName += '.elpi'
+            with open(os.path.join(self.mmtInterface.get_cwd(), targetName), 'w') as fp:
+                fp.write(str(elpicode))
+            return 'Success'
+
         elif name == 'subdir':
             if args and len(args) == 1:
                 msg = self.mmtInterface.create_subdir(args[0])
