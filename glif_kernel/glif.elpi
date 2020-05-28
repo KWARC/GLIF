@@ -1,0 +1,9 @@
+/* This gets imported (accumulated) into every ELPI file entered in a code cell */
+
+namespace glif {
+    % ignores command line arguments Args
+    type filter (A -> prop) -> list A -> list String -> prop.
+    filter _Check [] _Args.
+    filter Check [H|T] Args :- Check H, !, print H, filter Check T Args.
+    filter Check [_|T] Args :- filter Check T Args.
+}

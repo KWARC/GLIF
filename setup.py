@@ -11,7 +11,7 @@ setuptools.setup(
     version='1.0.0',
     packages=['glif_kernel'],
     package_data={
-        'glif_kernel' : ['messages.json', 'unicode-latex-map']
+        'glif_kernel' : ['messages.json', 'unicode-latex-map', 'glif.elpi']
     },
     install_requires = [
         'ipykernel>=5.1.0',

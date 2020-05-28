@@ -4,6 +4,7 @@ import subprocess
 import signal
 import time
 import re
+import shutil
 
 from json import load
 from subprocess import PIPE, Popen
@@ -256,16 +257,24 @@ class GLFRepl:
 
     def handle_elpi_command(self, command):
         args = get_args(command)
-        if len(args) < 2:
-            return 'ERROR: "elpi" command requires at least 2 arguments (file and rule)'
-        if not args[0].endswith('.elpi'):
-            args[0] += '.elpi'
+        if len(args) < 3:
+            return 'ERROR: "elpi" command requires at least 3 arguments (command, file and rule)'
+        command = args[0]
+        if command not in ['filter']:
+            return 'Unknown command: ' + command
+        filename = args[1]
+        if not filename.endswith('.elpi'):
+            filename += '.elpi'
+        rule = args[2]
+        argsmerged = ' '.join(args[3:])
+        fullcommand = f'glif.{command} {rule} [{argsmerged}]'
+        extraargs = ''
         elpi = subprocess.Popen((find_executable('elpi'),
             '-exec',
-            args[1],  # predicate
-            os.path.join(self.mmtInterface.get_cwd(), args[0]),  # file,
+            fullcommand,
+            os.path.join(self.mmtInterface.get_cwd(), filename),
             '--',
-            ' '.join(args[2:]),
+            extraargs,
             ),
             stdin = subprocess.PIPE,
             stderr = subprocess.PIPE,
@@ -391,11 +400,13 @@ class GLFRepl:
             name += '.elpi'
         file_path = os.path.join(self.grammar_path, name)
         try:
+            shutil.copyfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'glif.elpi'),
+                    os.path.join(self.mmtInterface.get_cwd(), 'glif.elpi'))
             with open(file_path, 'w') as f:
-                f.write('\n'.join(content.splitlines()[1:]))
+                f.write('accumulate glif.\n' + '\n'.join(content.splitlines()[1:]))
                 f.close()
-        except OSError:
-            return 'Failed to create grammar %s' % (name)
+        except OSError as ex:
+            return 'Failed to create %s:\n%s' % (name,ex)
         return 'Created ' + name
 
     def handle_grammar(self, content, name):
