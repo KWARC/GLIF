@@ -16,7 +16,7 @@ Note that they do not explain how to use GLIF.
 ### Other Examples
 Brief descriptions of the other examples:
 
-* `dimensional-analysis-cicm-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
+* `dimensional-analysis-ki-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
     It translates statements of physical properties in a CNL
     into logical expressions.
     Custom ELPI code performs a dimensional analysis to reduce the number
@@ -45,9 +45,9 @@ If you came here after reading a specific paper,
 you can find the necessary information here.
 
 
-#### The GLIF System: A Framework for Inference-Based Natural-Language Understanding (submitted to CICM 2020)
+#### The GLIF System: A Framework for Inference-Based Natural-Language Understanding (submitted to KI 2020)
 
-* `dimensional-analysis-cicm-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
+* `dimensional-analysis-ki-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
     This notebook contains the running example.
 * `glforthel-empty-set.ipynb`: Requires *GF*, *MMT*.
     This notebook demos a project to use GLIF for controlled mathematical language.
