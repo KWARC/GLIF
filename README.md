@@ -28,7 +28,7 @@ Except for Python, all prerequisites are optional, i.e. if you don't install e.g
 
 #### Python
 
-This package requires Python 3.8 (or newer) and this README assumes that this is the default python version. 
+This package requires Python 3.7 (or newer) and this README assumes that this is the default python version. 
 If in doubt, use `python3` instead of `python` and `python3 -m pip` instead of `pip`. 
 
 #### GF (optional)
