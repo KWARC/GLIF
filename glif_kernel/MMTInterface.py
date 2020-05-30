@@ -233,10 +233,12 @@ class MMTInterface():
             except:
                 return resp.text
 
-    def elpigen(self, mode, theory, targetName):
+    def elpigen(self, mode, theory, targetName, meta=False, includes = True):
         j = {
                 'theory' : 'http://mathhub.info/%s/%s' % (self.archive, theory),
                 'mode' : mode,
+                'follow-meta' : meta,
+                'follow-includes' : includes,
         }
         try:
             resp = requests.post(

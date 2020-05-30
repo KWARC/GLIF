@@ -346,6 +346,8 @@ class GLFRepl:
             theory = None
             mode = None
             targetName = None
+            meta = False
+            includes = True
             i = 0
             while True:
                 if not i < len(args):
@@ -356,7 +358,11 @@ class GLFRepl:
                     targetName = args[i+1]
                     i += 2
                     continue
-                if not mode:
+                if args[i] == '-noincludes':
+                    includes = False
+                elif args[i] == '-withmeta':
+                    meta = True
+                elif not mode:
                     mode = args[i]
                 elif not theory:
                     theory = args[i]
@@ -365,7 +371,7 @@ class GLFRepl:
                 i += 1
             if not mode: return 'No mode specified'
             if not theory: return 'No theory specified'
-            result = self.mmtInterface.elpigen(mode, theory, targetName)
+            result = self.mmtInterface.elpigen(mode, theory, targetName, meta, includes)
             if not result[0]:
                 return 'An error occured:\n' + result[1]
             elpicode = result[1]
