@@ -22,8 +22,8 @@ Brief descriptions of the other examples:
     Custom ELPI code performs a dimensional analysis to reduce the number
     of readings. For example *5 mN* has to mean *5 meter Newton* when
     talking about energy. When talking about forces, it must mean *5 milli Newton*.
-    It served as a running example in [this paper](http://kwarc.info/kohlhase/submit/cicm20-glif.pdf),
-    which is submitted to CICM 2020.
+    It served as a running example in the paper
+    *GLIF: A Declarative Framework for Symbolic Natural Language Understanding* (submitted to KI 2020).
 * `fake-lambda-test.ipynb`: Requires *GF*, *MMT*.
     Explores how variables in mathematical discourse can be bound during the semantics construction.
 * `glforthel-empty-set.ipynb`: Requires *GF*, *MMT*.
@@ -45,7 +45,7 @@ If you came here after reading a specific paper,
 you can find the necessary information here.
 
 
-#### The GLIF System: A Framework for Inference-Based Natural-Language Understanding (submitted to KI 2020)
+#### GLIF: A Declarative Framework for Symbolic Natural Language Understanding (submitted to KI 2020)
 
 * `dimensional-analysis-ki-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
     This notebook contains the running example.
