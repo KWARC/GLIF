@@ -2,6 +2,7 @@
 import os
 import io
 import requests
+import time
 
 from os.path import join, expanduser, isdir
 from subprocess import PIPE, Popen
@@ -40,6 +41,7 @@ class MMTInterface():
         for command in shell_commands:
             self.mmt.stdin.write(command)
         self.mmt.stdin.flush()
+        time.sleep(2)    # TODO: Better way to determine whether everything has started!
 
         self.mmt_path = MMT_PATH
         self.content_path = self.do_get_content_path()
