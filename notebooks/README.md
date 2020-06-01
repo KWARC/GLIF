@@ -46,6 +46,7 @@ you can find the necessary information here.
 
 
 #### GLIF: A Declarative Framework for Symbolic Natural Language Understanding (submitted to KI 2020)
+The paper can be found [here](https://kwarc.info/people/mkohlhase/submit/ki20-glif.pdf).
 
 * `dimensional-analysis-ki-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
     This notebook contains the running example.
@@ -54,7 +55,8 @@ you can find the necessary information here.
     It was developed before we added the inference component (ELPI) to GLIF.
 
 #### Prototyping Controlled Mathematical Languages in Jupyter Notebooks (ICMS 2020)
-That paper introduces GLF, the predecessor of GLIF.
+The paper can be found [here](https://kwarc.info/people/mkohlhase/papers/icms20-glf-jupyter.pdf).
+It introduces GLF, the predecessor of GLIF.
 Since the GLIF kernel subsumes the deprecated GLF kernel (and is indeed based on it),
 all examples have been migrated to GLIF.
 
