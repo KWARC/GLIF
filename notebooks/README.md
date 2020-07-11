@@ -16,14 +16,14 @@ Note that they do not explain how to use GLIF.
 ### Other Examples
 Brief descriptions of the other examples:
 
-* `dimensional-analysis-ki-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
+* `dimensional-analysis-fcr-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
     It translates statements of physical properties in a CNL
     into logical expressions.
     Custom ELPI code performs a dimensional analysis to reduce the number
     of readings. For example *5 mN* has to mean *5 meter Newton* when
     talking about energy. When talking about forces, it must mean *5 milli Newton*.
     It served as a running example in the paper
-    *GLIF: A Declarative Framework for Symbolic Natural Language Understanding* (submitted to KI 2020).
+    *GLIF: A Declarative Framework for Symbolic Natural Language Understanding* (submitted to FCR 2020).
 * `fake-lambda-test.ipynb`: Requires *GF*, *MMT*.
     Explores how variables in mathematical discourse can be bound during the semantics construction.
 * `glforthel-empty-set.ipynb`: Requires *GF*, *MMT*.
@@ -45,10 +45,10 @@ If you came here after reading a specific paper,
 you can find the necessary information here.
 
 
-#### GLIF: A Declarative Framework for Symbolic Natural Language Understanding (submitted to KI 2020)
+#### GLIF: A Declarative Framework for Symbolic Natural Language Understanding (submitted to FCR 2020)
 The paper can be found [here](https://kwarc.info/people/mkohlhase/submit/ki20-glif.pdf).
 
-* `dimensional-analysis-ki-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
+* `dimensional-analysis-fcr-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
     This notebook contains the running example.
 * `glforthel-empty-set.ipynb`: Requires *GF*, *MMT*.
     This notebook demos a project to use GLIF for controlled mathematical language.
@@ -71,3 +71,7 @@ all examples have been migrated to GLIF.
     before using them in a larger project.
     Of course, the notebook has been cleaned up a bit and explanatory mark-down
     cells have been added.
+* `icms-2020-presentation.ipynb`: Requires *GF*, *MMT*.
+    It contains the notebook part of the presentation.
+* `dimensional-analysis-fcr-2020.ipynb`: Requires *GF*, *MMT*, *ELPI*.
+    This contains that GLIF example that was briefly mentioned during the presentation.
