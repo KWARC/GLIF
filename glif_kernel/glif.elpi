@@ -6,4 +6,9 @@ namespace glif {
     filter _Check [] _Args.
     filter Check [H|T] Args :- Check H, !, print H, filter Check T Args.
     filter Check [_|T] Args :- filter Check T Args.
+
+    % ignores command line arguments Args
+    type map (A -> B) -> list A -> list String -> prop.
+    map _F [] _Args.
+    map F [H|T] Args :- F H R, print R, map F T Args.
 }

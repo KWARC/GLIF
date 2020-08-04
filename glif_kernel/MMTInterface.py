@@ -204,7 +204,7 @@ class MMTInterface():
         except OSError:
             return 'Failed to create %s' % name
 
-    def construct(self, ASTs, v=None, toElpi=False):
+    def construct(self, ASTs, v=None, toElpi=False, deltaExpand=False):
         """
             Sends a construct request to the MMT GLF server
 
@@ -217,6 +217,7 @@ class MMTInterface():
             'semanticsView': 'http://mathhub.info/%s/%s' % (self.archive, self.view),
             'ASTs': ASTs,
             'toElpi' : toElpi,
+            'deltaExpansion' : deltaExpand,
         }
         try:
             # apparently requests.post().json() returns a list

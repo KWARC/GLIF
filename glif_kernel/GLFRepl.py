@@ -259,8 +259,12 @@ class GLFRepl:
         args = get_args(command)
         if len(args) < 3:
             return 'ERROR: "elpi" command requires at least 3 arguments (command, file and rule)'
+        notc = False
+        if args[0] == "-no-tc":
+            notc = True
+            args = args[1:]
         command = args[0]
-        if command not in ['filter']:
+        if command not in ['filter', 'map']:
             return 'Unknown command: ' + command
         filename = args[1]
         if not filename.endswith('.elpi'):
@@ -269,13 +273,15 @@ class GLFRepl:
         argsmerged = ' '.join(args[3:])
         fullcommand = f'glif.{command} {rule} [{argsmerged}]'
         extraargs = ''
-        elpi = subprocess.Popen((find_executable('elpi'),
+        call = [find_executable('elpi')] + (['-no-tc'] if notc else []) + [
             '-exec',
             fullcommand,
             os.path.join(self.mmtInterface.get_cwd(), filename),
             '--',
             extraargs,
-            ),
+            ]
+        elpi = subprocess.Popen(
+            call,
             stdin = subprocess.PIPE,
             stderr = subprocess.PIPE,
             stdout = subprocess.PIPE,
@@ -324,6 +330,7 @@ class GLFRepl:
             view = None
             i = 0
             toElpi = False
+            deltaExpand = False
             while True:
                 if args[i] == '-v' or args[i] == '-view':
                     if len(args) <= i:
@@ -333,6 +340,9 @@ class GLFRepl:
                 elif args[i] == '-e' or args[i] == '-elpi':
                     toElpi = True
                     i += 1
+                elif args[i] == '-d' or args[i] == '-delta':
+                    deltaExpand = True
+                    i += 1
                 else:
                     break
 
@@ -340,7 +350,7 @@ class GLFRepl:
 
             h = ASTsStr.split('|')
             ASTs = list(map(str.strip, h))
-            return self.mmtInterface.construct(ASTs, view, toElpi)
+            return self.mmtInterface.construct(ASTs, view, toElpi, deltaExpand)
 
         elif name == 'elpigen':
             theory = None
