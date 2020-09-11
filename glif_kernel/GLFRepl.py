@@ -264,7 +264,7 @@ class GLFRepl:
             notc = True
             args = args[1:]
         command = args[0]
-        if command not in ['filter', 'map']:
+        if command not in ['filter', 'map', 'run', 'runeach']:
             return 'Unknown command: ' + command
         filename = args[1]
         if not filename.endswith('.elpi'):
@@ -288,7 +288,7 @@ class GLFRepl:
             text=True)
         out, err = elpi.communicate()
         if elpi.returncode not in [0,1]:
-            return 'ELPI ERROR: ' + str(elpi.returncode) + '\nOUTPUT:\n' + out + '\nERROR:\n' + err
+            return 'ELPI ERROR: ' + str(elpi.returncode) + '\nOUTPUT:\n' + out + '\nERROR:\n' + err + '\nCALL:\n' + str(call)
         else:
             return out
 

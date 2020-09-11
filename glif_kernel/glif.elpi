@@ -11,4 +11,13 @@ namespace glif {
     type map (A -> B) -> list A -> list String -> prop.
     map _F [] _Args.
     map F [H|T] Args :- F H R, print R, map F T Args.
+
+    % ignores command line arguments Args
+    type run (A -> prop) -> list A -> list String -> prop.
+    run Target Sentences _Args :- Target Sentences.
+
+    % ignores command line arguments Args
+    type runeach (A -> prop) -> list A -> list String -> prop.
+    runeach _Target [] _Args.
+    runeach Target [H|T] Args :- Target H, runeach Target T Args.
 }
