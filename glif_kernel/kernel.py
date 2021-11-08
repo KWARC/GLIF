@@ -86,12 +86,13 @@ class GLFKernel(Kernel):
         self.shell.exit_now = False
         super(GLFKernel, self).start()
 
-    def set_parent(self, ident, parent):
+    def set_parent(self, ident, parent, channel='shell'):
         """Overridden from parent to tell the display hook and output streams
         about the parent message.
         """
-        super(GLFKernel, self).set_parent(ident, parent)
-        self.shell.set_parent(parent)
+        super(GLFKernel, self).set_parent(ident, parent, channel)
+        if channel == 'shell':
+            self.shell.set_parent(parent)
 
     def init_metadata(self, parent):
         """Initialize metadata.
