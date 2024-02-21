@@ -1,4 +1,4 @@
-> ❗ **Outdated**: GLIF was re-implemented from scratch. This repository contains the original version, which is no longer maintained. You can find the new version [here](https://github.com/jfschaefer/glifkernel)
+❗ **Outdated**: GLIF was re-implemented from scratch. This repository contains the original version, which is no longer maintained. You can find the new version [here](https://github.com/jfschaefer/glifkernel).
 
 
 
