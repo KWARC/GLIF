@@ -1,5 +1,9 @@
+> ❗ **Outdated**: GLIF was re-implemented from scratch. This repository contains the original version, which is no longer maintained. You can find the new version [here](https://github.com/jfschaefer/glifkernel)
+
+
+
 GLIF Kernel
-==========
+===========
 
 `glif_kernel` is a kernel for [Jupyter](https://jupyter.org/) that combines functionalities of [GF](https://www.grammaticalframework.org/), [MMT](https://uniformal.github.io/) and [ELPI](https://github.com/LPCIC/elpi)
 into a unified framework for natural-language semantics experimentation.
